@@ -4,26 +4,30 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 flex items-center justify-center p-6">
-      <div className="max-w-xl w-full">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Tailwind v4 + Vite + React</h1>
-        <p className="text-gray-600 dark:text-gray-300 mb-6">
-          You’re all set. Tailwind utilities should work out of the box.
-        </p>
+    <div className="fixed top-0 right-0 h-screen w-1/4 max-w-md bg-white text-gray-900 shadow-2xl z-50 flex flex-col rounded-l-2xl">
+      
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 bg-red-600 rounded-tl-2xl">
+        <h2 className="text-lg font-bold text-white">TrueScope</h2>
 
-        <div className="flex items-center gap-3">
-          <button
-            className="rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 font-medium shadow-sm"
-            onClick={() => setCount((c) => c + 1)}
-          >
-            Count: {count}
-          </button>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            Try editing <code className="font-mono">src/App.jsx</code>
-          </span>
-        </div>
+        <button
+          aria-label="Close panel"
+          className="text-white text-xl font-bold hover:text-red-300 focus:outline-none transition p-0 rounded-none"
+          style={{ backgroundColor: 'transparent', border: 'none', padding: 0, borderRadius: 0 }}
+        >
+          ✕
+        </button>
+
       </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {/* Result cards go here */}
+      </div>
+
     </div>
+
+
   )
 }
 
