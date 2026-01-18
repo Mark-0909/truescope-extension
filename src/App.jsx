@@ -32,7 +32,7 @@ function App() {
       {/*Verdict/Summary Area*/}
       <div className='flex border-b-2 border-black/20'>
         <div className='flex flex-col items-center justify-center p-1 w-1/3 border-r-2 border-black/20 space-y-0'>
-          <img className='w-20 h-20 object-contain' src="./src/assets/Fake_Icon.png" />
+          <img className='w-20 h-20 object-contain' src="/src/assets/Fake_Icon.png" />
           <p className='m-0 text-sm -mt-1 font-bold italic text-red-900'>Likely Fake</p>
         </div>
         <div className='p-2 space-y-1 w-2/3'>
@@ -47,9 +47,14 @@ function App() {
       <div className='bg-black/30 '>
         <p className='px-2 py-1 font-bold text-[13px]'>Articles</p>
       </div>
-      <div className="flex-1 min-h-0 p-4 overflow-y-auto flex items-center justify-center">
-        {/* Article cards go here for loop*/}
-        <ArticleCard/>
+      <div className="flex-1 min-h-0 p-2 overflow-y-auto flex flex-col gap-0">
+        {/* Article cards go here for loop...Need to add details from json*/}
+        <ArticleCard />
+        <ArticleCard />
+        <ArticleCard />
+        <ArticleCard />
+        <ArticleCard />
+        <ArticleCard />
       </div>
 
     </div>
