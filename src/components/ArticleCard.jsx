@@ -1,11 +1,12 @@
 import { useState } from 'react';
 
-export default function ArticleCard() {
+export default function ArticleCard({oddEven}) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
+
         <div 
-            className="w-full bg-gray-200 rounded-lg shadow-md p-2 mb-1 cursor-pointer hover:bg-gray-300 transition-all duration-300"
+            className={`w-full rounded-lg shadow-md p-2 mb-1 cursor-pointer hover:bg-gray-300 transition-all duration-300 ${oddEven === 'odd' ? 'bg-gray-300/20' : 'bg-gray-300'}`}
             onClick={() => setIsExpanded(!isExpanded)}
         >
         

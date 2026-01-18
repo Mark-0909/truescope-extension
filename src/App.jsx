@@ -49,12 +49,12 @@ function App() {
       </div>
       <div className="flex-1 min-h-0 p-2 overflow-y-auto flex flex-col gap-0">
         {/* Article cards go here for loop...Need to add details from json*/}
-        <ArticleCard />
-        <ArticleCard />
-        <ArticleCard />
-        <ArticleCard />
-        <ArticleCard />
-        <ArticleCard />
+        <ArticleCard oddEven={'even'}/>
+        <ArticleCard oddEven={'odd'}/>
+        <ArticleCard oddEven={'even'}/>
+        <ArticleCard oddEven={'odd'}/>
+        <ArticleCard oddEven={'even'}/>
+        <ArticleCard oddEven={'odd'}/>
       </div>
 
     </div>
