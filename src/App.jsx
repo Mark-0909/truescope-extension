@@ -45,20 +45,19 @@ function App() {
 
       {/* Articles Area */}
       <div className='bg-black/30 '>
-        <p className='px-2 py-1 font-bold text-[13px]'>Articles</p>
+        <p className='px-2 py-1 font-bold text-[13px]'>Supporting Articles</p>
       </div>
       <div className="flex-1 min-h-0 p-2 overflow-y-auto flex flex-col gap-0">
         {/* Article cards go here for loop...Need to add details from json*/}
-        <ArticleCard oddEven={'even'}/>
-        <ArticleCard oddEven={'odd'}/>
-        <ArticleCard oddEven={'even'}/>
-        <ArticleCard oddEven={'odd'}/>
-        <ArticleCard oddEven={'even'}/>
-        <ArticleCard oddEven={'odd'}/>
+        <ArticleCard oddEven={'even'} support={'support'} source={"Verafiles"} title={"Government Denies P20 rice"} Remarks={"Lorem Ipsum is simply dummy text of the printing and typesetting industry."} VerdictScore={48} ArticleLink={"#"} />
+        <ArticleCard oddEven={'odd'} support={'refute'} source={"FactCheck"} title={"P20 rice distribution delayed"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={52} ArticleLink={"#"} />
+        <ArticleCard oddEven={'even'} support={'support'} source={"NewsDaily"} title={"Rice distribution plans announced"} Remarks={"Lorem Ipsum is simply dummy text of the printing and typesetting industry."} VerdictScore={60} ArticleLink={"#"} />
+        <ArticleCard oddEven={'odd'} support={'refute'} source={"TruthWatch"} title={"P20 rice claim debunked"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={40} ArticleLink={"#"} />
+        <ArticleCard oddEven={'even'} support={'support'} source={"ReliableNews"} title={"Government confirms rice distribution"} Remarks={"Lorem Ipsum is simply dummy text of the printing and typesetting industry."} VerdictScore={55} ArticleLink={"#"} />
+        <ArticleCard oddEven={'odd'} support={'refute'} source={"FactCheck"} title={"Rice distribution misinformation"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={45} ArticleLink={"#"} />
       </div>
 
     </div>
-
 
   )
 }
