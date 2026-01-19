@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import BiasBar from './components/BiasBar.jsx'
 import ArticleCard from './components/ArticleCard.jsx' 
+import InfoCard from './components/InfoCard.jsx'
 
 
 function App() {
@@ -36,10 +37,10 @@ function App() {
           <p className='m-0 text-sm -mt-1 font-bold italic text-red-900'>Likely Fake</p>
         </div>
         <div className='p-2 space-y-1 w-2/3'>
-          <p className='text-xs font-semibold text-black/70'>Truth Confidence Score: <span className='font-bold text-xs'>49%</span></p>
-          <p className='text-xs font-semibold text-black/70'>Bias Consistency Scoring:</p>
+          <p className='text-xs font-semibold text-black/70'>Truth Confidence Score<InfoCard title="Truth Confidence Score" definition="This score represents the confidence level in the truthfulness of the statement based on the analysis of supporting and refuting articles." />: <span className='font-bold text-xs'>49%</span></p>
+          <p className='text-xs font-semibold text-black/70'>Bias Consistency Scoring<InfoCard title="Bias Consistency Scoring" definition="This score indicates how consistent the bias is across different sources supporting the statement." />:</p>
           <BiasBar type="consistency" value={20} />
-          <p className='text-xs font-semibold text-black/70'>Bias Divergence: <span className='font-bold text-xs'>15%</span></p>
+          <p className='text-xs font-semibold text-black/70'>Bias Divergence<InfoCard title="Bias Divergence" definition="This score measures the extent of divergence in bias among different sources." />: <span className='font-bold text-xs'>15%</span></p>
         </div>
       </div>
 
