@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import InfoCard from './InfoCard.jsx';
 
 export default function ArticleCard({oddEven, support, source, title, Remarks, VerdictScore, ArticleLink}) {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -51,7 +52,7 @@ export default function ArticleCard({oddEven, support, source, title, Remarks, V
             {/*Footer with Verdict Bar and Link*/}
             <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 flex-1">
-                    <span className="text-xs font-semibold text-gray-800">Verdict:</span>
+                    <span className="text-xs font-semibold text-gray-800">Verdict<InfoCard title="Verdict" definition="Indicates this article's assessed support strength for the statement on a 0–100 scale; higher leans supportive, lower leans refuting." />:</span>
                     <div className="h-3 flex-1 bg-red-800 rounded-full overflow-hidden relative">
                         <div className="h-3 bg-green-600 rounded-full" style={{ width: `${VerdictScore}%` }}></div>
                     </div>
