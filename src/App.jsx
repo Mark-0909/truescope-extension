@@ -8,7 +8,7 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <div className="fixed top-0 right-0 h-screen w-1/4 max-w-md bg-white/70 text-gray-900 shadow-2xl z-50 flex flex-col rounded-l-md">
+    <div className="fixed top-0 right-0 h-screen w-1/4 max-w-md bg-white/70 text-gray-900 shadow-2xl z-50 flex flex-col rounded-l-md overflow-hidden">
       
       {/* Header */}
         <div className="relative flex items-center justify-between px-3 py-2 bg-red-500 rounded-tl-md">
@@ -48,7 +48,7 @@ function App() {
       <div className='bg-black/30 '>
         <p className='px-2 py-1 font-bold text-[13px]'>Supporting Articles</p>
       </div>
-      <div className="flex-1 min-h-0 p-2 overflow-y-auto flex flex-col gap-0">
+      <div className="flex-1 min-h-0 p-0 overflow-hidden overflow-y-auto flex flex-col gap-0">
         {/* Article cards go here for loop...Need to add details from json*/}
         <ArticleCard oddEven={'even'} support={'support'} source={"Verafiles"} title={"Government Denies P20 rice"} Remarks={"Lorem Ipsum is simply dummy text of the printing and typesetting industry."} VerdictScore={48} ArticleLink={"#"} />
         <ArticleCard oddEven={'odd'} support={'refute'} source={"FactCheck"} title={"P20 rice distribution delayed"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={52} ArticleLink={"#"} />
@@ -56,6 +56,7 @@ function App() {
         <ArticleCard oddEven={'odd'} support={'refute'} source={"TruthWatch"} title={"P20 rice claim debunked"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={40} ArticleLink={"#"} />
         <ArticleCard oddEven={'even'} support={'support'} source={"ReliableNews"} title={"Government confirms rice distribution"} Remarks={"Lorem Ipsum is simply dummy text of the printing and typesetting industry."} VerdictScore={55} ArticleLink={"#"} />
         <ArticleCard oddEven={'odd'} support={'refute'} source={"FactCheck"} title={"Rice distribution misinformation"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={45} ArticleLink={"#"} />
+        <ArticleCard oddEven={'even'} support={'refute'} source={"FactCheck"} title={"Rice distribution misinformation"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={45} ArticleLink={"#"} />
       </div>
 
     </div>
