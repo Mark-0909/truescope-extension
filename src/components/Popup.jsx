@@ -3,18 +3,61 @@ import ArticleCard from './ArticleCard.jsx'
 import InfoCard from './InfoCard.jsx'
 
 
-export default function Popup() {
+export default function Popup({Verdict = 'neutral'}) {
+    const getColorClasses = () => {
+        switch(Verdict.toLowerCase()) {
+            case 'true':
+                return { 
+                    header: 'bg-green-500', 
+                    statement: 'bg-green-900', 
+                    hover: 'hover:text-green-300',
+                    textColor: 'text-green-900',
+                    icon: '/src/assets/Truth_Icon.png',
+                    label: 'Likely True'
+                };
+            case 'fake':
+                return { 
+                    header: 'bg-red-500', 
+                    statement: 'bg-red-900', 
+                    hover: 'hover:text-red-300',
+                    textColor: 'text-red-900',
+                    icon: '/src/assets/Fake_Icon.png',
+                    label: 'Likely Fake'
+                };
+            case 'neutral':
+                return { 
+                    header: 'bg-yellow-500', 
+                    statement: 'bg-yellow-800', 
+                    hover: 'hover:text-yellow-300',
+                    textColor: 'text-yellow-700',
+                    icon: '/src/assets/Needs_Context_Icon.png',
+                    label: 'Needs Context'
+                };
+            default:
+                return { 
+                    header: 'bg-red-500', 
+                    statement: 'bg-red-900', 
+                    hover: 'hover:text-red-300',
+                    textColor: 'text-red-900',
+                    icon: '/src/assets/Fake_Icon.png',
+                    label: 'Likely Fake'
+                };
+        }
+    };
+
+    const colors = getColorClasses();
+
     return (
         <div className="fixed top-0 right-0 h-screen w-1/4 max-w-md bg-white/70 text-gray-900 shadow-2xl z-50 flex flex-col rounded-l-md overflow-hidden">
         
         {/* Header */}
-            <div className="relative flex items-center justify-between px-3 py-2 bg-red-500 rounded-tl-md">
+            <div className={`relative flex items-center justify-between px-3 py-2 ${colors.header} rounded-tl-md`}>
             <h2 className="text-lg font-bold text-white">TrueScope</h2>
 
                 <button
                 type="button"
                 aria-label="Close panel"
-                className="absolute -right-2 top-1/2 -translate-y-1/2 text-white text-xl font-bold hover:text-red-300 focus:outline-none transition p-2 rounded-md focus:ring-0"
+                className={`absolute -right-2 top-1/2 -translate-y-1/2 text-white text-xl font-bold ${colors.hover} focus:outline-none transition p-2 rounded-md focus:ring-0`}
                 style={{ backgroundColor: 'transparent', border: 'none', outline: 'none', boxShadow: 'none' }}
                 >
                 ✕
@@ -22,7 +65,7 @@ export default function Popup() {
         </div>
 
         {/*Statement Area*/}
-        <div className="flex flex-col items-center justify-center p-1 space-y-0 w-full bg-red-900">
+        <div className={`flex flex-col items-center justify-center p-1 space-y-0 w-full ${colors.statement}`}>
             <p className="text-sm font-semibold italic text-white/80">"P20 rice distributed nationwide next week."</p>
             <p className="text-xs font-semibold bold text-white/50">Statement</p>
         </div>
@@ -30,8 +73,8 @@ export default function Popup() {
         {/*Verdict/Summary Area*/}
         <div className='flex border-b-2 border-black/20'>
             <div className='flex flex-col items-center justify-center p-1 w-1/3 border-r-2 border-black/20 space-y-0'>
-            <img className='w-20 h-20 object-contain' src="/src/assets/Fake_Icon.png" />
-            <p className='m-0 text-sm -mt-1 font-bold italic text-red-900'>Likely Fake</p>
+            <img className='w-20 h-20 object-contain' src={colors.icon} />
+            <p className={`m-0 text-sm -mt-1 font-bold italic ${colors.textColor}`}>{colors.label}</p>
             </div>
             <div className='p-2 space-y-1 w-2/3'>
             <p className='text-xs font-semibold text-black/70'>Truth Confidence Score<InfoCard title="Truth Confidence Score" definition="This score represents the confidence level in the truthfulness of the statement based on the analysis of supporting and refuting articles." />: <span className='font-bold text-xs'>49%</span></p>

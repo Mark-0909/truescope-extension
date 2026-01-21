@@ -4,7 +4,7 @@ import Popup from './components/Popup.jsx'
 function App() {
 
   return(
-    <Popup />
+    <Popup Verdict='neutral' />
   )
 
 }
