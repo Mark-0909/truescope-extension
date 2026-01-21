@@ -7,7 +7,7 @@ export default function ArticleCard({oddEven, support, source, title, Remarks, V
     return (
 
         <div 
-            className={`w-full  shadow-md p-2 mb-0 cursor-pointer transition-all duration-300 ${oddEven === 'odd' ? 'bg-gray-200/30 hover:bg-gray-300' : 'bg-gray-300 hover:bg-gray-300/20'}`}
+            className={`w-full shadow-md p-2 mb-0 cursor-pointer transition-all duration-200 ${oddEven === 'odd' ? 'bg-gray-200/30 hover:bg-gray-200/50 hover:shadow-lg' : 'bg-gray-300 hover:bg-gray-300/70 hover:shadow-lg'}`}
             onClick={() => setIsExpanded(!isExpanded)}
         >
         
