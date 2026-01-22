@@ -1,9 +1,26 @@
+import { useState, useEffect } from 'react'
 import BiasBar from './BiasBar.jsx'
 import ArticleCard from './ArticleCard.jsx'
 import InfoCard from './InfoCard.jsx'
+import TruthIcon from '../assets/Truth_Icon.png'
+import FakeIcon from '../assets/Fake_Icon.png'
+import NeedsContextIcon from '../assets/Needs_Context_Icon.png'
 
 
-export default function Popup({Verdict = 'neutral'}) {
+export default function Popup({Verdict}) {
+    const [selectedText, setSelectedText] = useState('');
+
+    useEffect(() => {
+        // Retrieve the selected text from Chrome storage
+        chrome.storage.local.get(['selectedText'], (result) => {
+            if (result.selectedText) {
+                setSelectedText(result.selectedText);
+                // Clear the storage after retrieving
+                chrome.storage.local.remove('selectedText');
+            }
+        });
+    }, []);
+
     const getColorClasses = () => {
         switch(Verdict.toLowerCase()) {
             case 'true':
@@ -12,7 +29,7 @@ export default function Popup({Verdict = 'neutral'}) {
                     statement: 'bg-green-900', 
                     hover: 'hover:text-green-300',
                     textColor: 'text-green-900',
-                    icon: '/src/assets/Truth_Icon.png',
+                    icon: TruthIcon,
                     label: 'Likely True'
                 };
             case 'fake':
@@ -21,7 +38,7 @@ export default function Popup({Verdict = 'neutral'}) {
                     statement: 'bg-red-900', 
                     hover: 'hover:text-red-300',
                     textColor: 'text-red-900',
-                    icon: '/src/assets/Fake_Icon.png',
+                    icon: FakeIcon,
                     label: 'Likely Fake'
                 };
             case 'neutral':
@@ -30,7 +47,7 @@ export default function Popup({Verdict = 'neutral'}) {
                     statement: 'bg-yellow-800', 
                     hover: 'hover:text-yellow-300',
                     textColor: 'text-yellow-700',
-                    icon: '/src/assets/Needs_Context_Icon.png',
+                    icon: NeedsContextIcon,
                     label: 'Needs Context'
                 };
             default:
@@ -39,7 +56,7 @@ export default function Popup({Verdict = 'neutral'}) {
                     statement: 'bg-red-900', 
                     hover: 'hover:text-red-300',
                     textColor: 'text-red-900',
-                    icon: '/src/assets/Fake_Icon.png',
+                    icon: FakeIcon,
                     label: 'Likely Fake'
                 };
         }
@@ -48,25 +65,11 @@ export default function Popup({Verdict = 'neutral'}) {
     const colors = getColorClasses();
 
     return (
-        <div className="fixed top-0 right-0 h-screen w-1/4 max-w-md bg-white/70 text-gray-900 shadow-2xl z-50 flex flex-col rounded-l-md overflow-hidden">
+        <div className="w-full h-screen bg-white/70 text-gray-900 flex flex-col overflow-hidden">
         
-        {/* Header */}
-            <div className={`relative flex items-center justify-between px-3 py-2 ${colors.header} rounded-tl-md`}>
-            <h2 className="text-lg font-bold text-white">TrueScope</h2>
-
-                <button
-                type="button"
-                aria-label="Close panel"
-                className={`absolute -right-2 top-1/2 -translate-y-1/2 text-white text-xl font-bold ${colors.hover} focus:outline-none transition p-2 rounded-md focus:ring-0`}
-                style={{ backgroundColor: 'transparent', border: 'none', outline: 'none', boxShadow: 'none' }}
-                >
-                ✕
-                </button>
-        </div>
-
         {/*Statement Area*/}
-        <div className={`flex flex-col items-center justify-center p-1 space-y-0 w-full ${colors.statement}`}>
-            <p className="text-sm font-semibold italic text-white/80">"P20 rice distributed nationwide next week."</p>
+        <div className={`flex flex-col items-center justify-center p-3 space-y-0 w-full ${colors.statement}`}>
+            <p className="text-sm font-semibold italic text-white/80 break-words text-center w-full">"{selectedText || "P20 rice distributed nationwide next week."}"</p>
             <p className="text-xs font-semibold bold text-white/50">Statement</p>
         </div>
 

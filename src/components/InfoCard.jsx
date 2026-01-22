@@ -18,8 +18,8 @@ export default function InfoCard({title, definition}) {
 
     return(
         <div className="inline-flex items-center" onMouseEnter={handleMouseEnter} onMouseLeave={() => setIsHovered(false)} ref={iconRef}>
-            <div className="w-4 h-4 rounded-full border-2 border-gray-500 flex items-center justify-center cursor-help hover:border-gray-700 transition-colors">
-                <span className="text-[10px] font-bold text-gray-600">i</span>
+            <div className="w-3 h-3 rounded-full border-2 border-gray-500 flex items-center justify-center cursor-help hover:border-gray-700 transition-colors">
+                <span className="text-[8px] font-bold text-gray-600">i</span>
             </div>
 
             {isHovered && (

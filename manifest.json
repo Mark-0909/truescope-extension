@@ -3,20 +3,21 @@
   "name": "TrueScope",
   "version": "1.0.0",
   "description": "Analyze news articles for bias and credibility",
-  "action": {
-    "default_popup": "index.html",
-    "default_icon": {
-      "16": "public/vite.svg",
-      "48": "public/vite.svg",
-      "128": "public/vite.svg"
-    }
+  "side_panel": {
+    "default_path": "index.html"
   },
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "contextMenus",
+    "storage",
+    "sidePanel"
   ],
   "host_permissions": [
     "http://*/*",
     "https://*/*"
-  ]
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  }
 }
