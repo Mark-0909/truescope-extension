@@ -14,7 +14,7 @@
 
 This is the first step - testing your extension locally before publishing to the Chrome Web Store.
 
-### **Step 1: Build the Extension**
+### **Step 1: Start the Development Server**
 
 1. Open terminal and navigate to the project:
    ```bash
@@ -26,12 +26,21 @@ This is the first step - testing your extension locally before publishing to the
    npm install
    ```
 
-3. Build the extension:
+3. Start the development server with hot reload:
+   ```bash
+   npm run dev
+   ```
+
+   This will:
+   - Compile your extension
+   - Create a `dist` folder
+   - Watch for file changes and automatically rebuild
+   - Show a message like "CRXJS: Load dist as unpacked extension"
+
+4. **Alternative**: If you prefer a one-time build without watching:
    ```bash
    npm run build
    ```
-
-4. This creates a `dist` folder with all compiled files
 
 ### **Step 2: Open Chrome in Developer Mode**
 
@@ -57,16 +66,17 @@ This is the first step - testing your extension locally before publishing to the
 3. Visit any news article website to test functionality
 4. Open Chrome DevTools (F12) and check the Console for any errors
 
-### **Step 5: Reload During Development**
+### **Step 5: Hot Reload During Development**
 
-1. After making changes, rebuild:
-   ```bash
-   npm run build
-   ```
+Since you're running `npm run dev`, changes automatically rebuild:
 
-2. Go back to `chrome://extensions/`
-3. Click the **refresh icon** on the TrueScope extension card
-4. Your changes will be loaded in Chrome
+1. Edit your code in the `src/` folder (e.g., [src/components/Popup.jsx](src/components/Popup.jsx))
+2. Vite automatically rebuilds the `dist` folder
+3. Go to `chrome://extensions/`
+4. Click the **refresh icon** on the TrueScope extension card
+5. Your changes appear instantly!
+
+**Pro Tip**: Keep the terminal running with `npm run dev` throughout your development session. You'll see rebuild messages every time you save a file.
 
 ### **Step 6: Remove Extension**
 
