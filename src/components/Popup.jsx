@@ -69,7 +69,7 @@ export default function Popup({Verdict}) {
         
         {/*Statement Area*/}
         <div className={`flex flex-col items-center justify-center p-3 space-y-0 w-full ${colors.statement}`}>
-            <p className="text-sm font-semibold italic text-white/80 break-words text-center w-full">"{selectedText || "P20 rice distributed nationwide next week."}"</p>
+            <p className="text-sm font-semibold italic text-white/80 wrap-break-words text-center w-full">"{selectedText || "P20 rice distributed nationwide next week."}"</p>
             <p className="text-xs font-semibold bold text-white/50">Statement</p>
         </div>
 
