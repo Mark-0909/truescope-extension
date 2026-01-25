@@ -65,7 +65,7 @@ export default function Popup({Verdict}) {
     const colors = getColorClasses();
 
     return (
-        <div className="w-full h-screen bg-white/70 text-gray-900 flex flex-col overflow-hidden">
+        <div className="w-full h-screen bg-white text-gray-900 flex flex-col overflow-hidden">
         
         {/*Statement Area*/}
         <div className={`flex flex-col items-center justify-center p-3 space-y-0 w-full ${colors.statement}`}>
@@ -76,10 +76,10 @@ export default function Popup({Verdict}) {
         {/*Verdict/Summary Area*/}
         <div className='flex border-b-2 border-black/20'>
             <div className='p-2 space-y-1 w-2/3'>
-            <p className='text-xs font-semibold text-black/70'>Truth Confidence Score<InfoCard title="Truth Confidence Score" definition="This score represents the confidence level in the truthfulness of the statement based on the analysis of supporting and refuting articles." />: <span className='font-bold text-xs'>49%</span></p>
-            <p className='text-xs font-semibold text-black/70'>Bias Consistency Scoring<InfoCard title="Bias Consistency Scoring" definition="This score indicates how consistent the bias is across different sources supporting the statement." />:</p>
+            <p className='text-base font-semibold text-black/70'>Truth Confidence Score<InfoCard title="Truth Confidence Score" definition="This score represents the confidence level in the truthfulness of the statement based on the analysis of supporting and refuting articles." />: <span className='font-bold text-base'>49%</span></p>
+            <p className='text-base font-semibold text-black/70'>Bias Divergence<InfoCard title="Bias Divergence" definition="This score measures the extent of divergence in bias among different sources." />: <span className='font-bold text-base'>15%</span></p>
+            <p className='text-base font-semibold text-black/70'>Bias Consistency Scoring<InfoCard title="Bias Consistency Scoring" definition="This score indicates how consistent the bias is across different sources supporting the statement." />:</p>
             <BiasBar type="consistency" value={20} />
-            <p className='text-xs font-semibold text-black/70'>Bias Divergence<InfoCard title="Bias Divergence" definition="This score measures the extent of divergence in bias among different sources." />: <span className='font-bold text-xs'>15%</span></p>
             </div>
             <div className='flex flex-col items-center justify-center p-1 w-1/3 border-l-2 border-black/20 space-y-0'>
             <img className='w-20 h-20 object-contain' src={colors.icon} />
