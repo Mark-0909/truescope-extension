@@ -102,7 +102,7 @@ export default function Popup({Verdict}) {
         </div>
 
         {/* Articles Area */}
-        <div className='bg-black/30 '>
+        <div className={`${colors.statement} text-white`}>
             <p className='px-2 py-1 font-bold text-[13px]'>Supporting Articles</p>
         </div>
         <div className="flex-1 bg-white min-h-0 p-0 overflow-hidden overflow-y-auto flex flex-col gap-0">
