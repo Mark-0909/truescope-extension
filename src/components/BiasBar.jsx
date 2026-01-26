@@ -4,7 +4,7 @@ export default function BiasBar({ label, value = 0, color = 'bg-gray-400', type 
 	if (type === 'consistency') {
 		return (
 			<div className="w-full mb-2">
-				<div className="flex items-center justify-between text-[10px] text-gray-600 mb-1 font-bold">
+				<div className="flex items-center justify-between text-[10px] text-gray-500 mb-1 font-bold">
 					<span>Support</span>
 					<span>Neutral</span>
 					<span>Refute</span>
