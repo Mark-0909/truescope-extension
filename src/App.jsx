@@ -19,7 +19,7 @@ function App() {
   }, []);
 
   return(
-    <Popup Verdict="neutral"/>
+    <Popup Verdict="fake"/>
   )
 }
 

@@ -9,10 +9,10 @@ export default function ArticleCard({oddEven, support, source, title, Remarks, V
         <div 
             className={`w-full border px-3 py-2 cursor-pointer transition-colors duration-200 ${
                 support === 'support'
-                    ? 'bg-green-50 border-l-4 border-l-green-500 hover:bg-green-100/60'
+                    ? '{/*bg-green-50*/} border-l-4 border-l-green-500 hover:bg-green-100/60'
                     : support === 'refute'
-                        ? 'bg-red-50 border-l-4 border-l-red-500 hover:bg-red-100/60'
-                        : 'bg-yellow-50 border-l-4 border-l-yellow-500 hover:bg-yellow-100/60'
+                        ? '{/*bg-red-50*/} border-l-4 border-l-red-500 hover:bg-red-100/60'
+                        : '{/*bg-yellow-50*/} border-l-4 border-l-yellow-500 hover:bg-yellow-100/60'
             }`}
             onClick={() => setIsExpanded(!isExpanded)}
         >
@@ -42,7 +42,7 @@ export default function ArticleCard({oddEven, support, source, title, Remarks, V
             }`}
         >
             {/*Remarks Section*/}
-            <div className="mb-3 mt-3 flex flex-row gap-2">
+            <div className="mb-3 mt-3 flex flex-row gap-4">
                                 <div className="flex flex-col items-center gap-0">
                     {support === 'support' ? (
                         <>
@@ -76,8 +76,12 @@ export default function ArticleCard({oddEven, support, source, title, Remarks, V
 
             {/*Footer with Verdict Bar and Link*/}
             <div className="flex items-center justify-between gap-4 py-1">
-                <div className="flex  gap-2 flex-1">
-                    <span className="text-[10px] font-semibold text-gray-800 whitespace-nowrap">Verdict <InfoCard title="Verdict" definition="Indicates this article's assessed support strength for the statement on a 0–100 scale; higher leans supportive, lower leans refuting." /> :</span>
+                <div className="flex gap-2 flex-1">
+                    <div className="flex items-center gap-1">
+                        <span className="text-[10px] font-semibold text-gray-800 whitespace-nowrap">Verdict</span>
+                        <InfoCard title="Verdict" definition="Indicates this article's assessed support strength for the statement on a 0–100 scale; higher values lean supportive (green), lower values lean refuting (red)." />
+                        <span className="text-[10px] font-semibold text-gray-800">:</span>
+                    </div>
                     <div className='w-full flex flex-col gap-0'>
                         <div className="flex items-center -mt-2.5 justify-between text-[7px] text-gray-600 font-bold flex-1">
                             <span>Sup</span>

@@ -103,7 +103,7 @@ export default function Popup({Verdict}) {
 
         {/* Articles Area */}
         <div className={`${colors.statement} text-white`}>
-            <p className='px-2 py-1 font-bold text-[13px]'>Supporting Articles</p>
+            <p className='px-2 py-2 font-bold text-[13px]'>Supporting Articles</p>
         </div>
         <div className="flex-1 bg-white min-h-0 p-0 overflow-hidden overflow-y-auto flex flex-col gap-0">
             {/* Article cards go here for loop...Need to add details from json*/}
