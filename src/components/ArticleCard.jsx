@@ -1,7 +1,18 @@
 import { useState } from 'react';
 import InfoCard from './InfoCard.jsx';
 
-export default function ArticleCard({oddEven, support, source, title, Remarks, VerdictScore, ArticleLink}) {
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date)) return dateString;
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    });
+}
+
+export default function ArticleCard({oddEven, support, source, title, Remarks, VerdictScore, ArticleLink, publishedDate}) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
@@ -68,7 +79,10 @@ export default function ArticleCard({oddEven, support, source, title, Remarks, V
                     )}
 
                 </div>
+                <div>
+                <p className='text-gray-700 text-sm'><span className='font-bold'>Published Date:</span> <span>{formatDate(publishedDate)}</span></p>
                 <p className="text-sm text-gray-700"><span className="font-bold">Remarks:</span> {Remarks}</p>
+                </div>
             </div>
 
             {/*Divider*/}
@@ -78,7 +92,7 @@ export default function ArticleCard({oddEven, support, source, title, Remarks, V
             <div className="flex items-center justify-between gap-4 py-1">
                 <div className="flex gap-2 flex-1">
                     <div className="flex items-center gap-1">
-                        <span className="text-[10px] font-semibold text-gray-800 whitespace-nowrap">Verdict</span>
+                        <span className="text-[12px] font-semibold text-gray-800 whitespace-nowrap">Verdict</span>
                         <InfoCard title="Verdict" definition="Indicates this article's assessed support strength for the statement on a 0–100 scale; higher values lean supportive (green), lower values lean refuting (red)." />
                         <span className="text-[10px] font-semibold text-gray-800">:</span>
                     </div>
@@ -89,10 +103,10 @@ export default function ArticleCard({oddEven, support, source, title, Remarks, V
                             <span>Ref</span>
                         </div>
                         <div className="h-2 flex-1 bg-red-800 rounded-full overflow-hidden relative">
-                            <div className="h-3.25 bg-green-700 rounded-full" style={{ width: `${VerdictScore}%` }}></div>
+                            <div className="h-3.5 bg-green-700 rounded-full" style={{ width: `${VerdictScore}%` }}></div>
                         </div>
                     </div>
-                    <span className="text-[9px] font-bold text-gray-800 whitespace-nowrap">{VerdictScore}%</span>
+                    <span className="text-[12px] font-bold text-gray-800 whitespace-nowrap">{VerdictScore}%</span>
                 </div>
                 <a href="#" className="text-xs text-blue-600 underline whitespace-nowrap" onClick={(e) => e.stopPropagation()}>[Link to Article]</a>
             </div>

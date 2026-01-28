@@ -107,12 +107,12 @@ export default function Popup({Verdict}) {
         </div>
         <div className="flex-1 bg-white min-h-0 p-0 overflow-hidden overflow-y-auto flex flex-col gap-0">
             {/* Article cards go here for loop...Need to add details from json*/}
-            <ArticleCard oddEven={'even'} support={'neutral'} source={"Verafiles"} title={"Government Denies P20 rice"} Remarks={"Lorem Ipsum is simply dummy text of the printing and typesetting industry."} VerdictScore={48} ArticleLink={"#"} />
-            <ArticleCard oddEven={'odd'} support={'refute'} source={"FactCheck"} title={"P20 rice distribution delayed"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={52} ArticleLink={"#"} />
-            <ArticleCard oddEven={'even'} support={'support'} source={"NewsDaily"} title={"Rice distribution plans announced"} Remarks={"Lorem Ipsum is simply dummy text of the printing and typesetting industry."} VerdictScore={60} ArticleLink={"#"} />
-            <ArticleCard oddEven={'odd'} support={'neutral'} source={"TruthWatch"} title={"P20 rice claim debunked"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={40} ArticleLink={"#"} />
-            <ArticleCard oddEven={'even'} support={'support'} source={"ReliableNews"} title={"Government confirms rice distribution"} Remarks={"Lorem Ipsum is simply dummy text of the printing and typesetting industry."} VerdictScore={55} ArticleLink={"#"} />
-            <ArticleCard oddEven={'odd'} support={'refute'} source={"FactCheck"} title={"Rice distribution misinformation"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={45} ArticleLink={"#"} />
+            <ArticleCard oddEven={'even'} support={'neutral'} source={"Verafiles"} title={"Government Denies P20 rice"} Remarks={"Lorem Ipsum is simply dummy text of the printing and typesetting industry."} VerdictScore={48} ArticleLink={"#"} publishedDate={"2025-11-12"} />
+            <ArticleCard oddEven={'odd'} support={'refute'} source={"FactCheck"} title={"P20 rice distribution delayed"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={52} ArticleLink={"#"} publishedDate={"2025-11-13"} />
+            <ArticleCard oddEven={'even'} support={'support'} source={"NewsDaily"} title={"Rice distribution plans announced"} Remarks={"Lorem Ipsum is simply dummy text of the printing and typesetting industry."} VerdictScore={60} ArticleLink={"#"} publishedDate={"2025-11-14"} />
+            <ArticleCard oddEven={'odd'} support={'neutral'} source={"TruthWatch"} title={"P20 rice claim debunked"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={40} ArticleLink={"#"} publishedDate={"2025-11-15"} />
+            <ArticleCard oddEven={'even'} support={'support'} source={"ReliableNews"} title={"Government confirms rice distribution"} Remarks={"Lorem Ipsum is simply dummy text of the printing and typesetting industry."} VerdictScore={55} ArticleLink={"#"} publishedDate={"2025-11-16"} />
+            <ArticleCard oddEven={'odd'} support={'refute'} source={"FactCheck"} title={"Rice distribution misinformation"} Remarks={"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."} VerdictScore={45} ArticleLink={"#"} publishedDate={"2025-11-17"} />
         </div>
 
         </div>
