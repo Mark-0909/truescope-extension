@@ -39,17 +39,17 @@ function App() {
     );
   }
 
-  return (
-    <>
-      {overallVerdict && scores && (
-        <Popup
-          overallVerdict={overallVerdict}
-          selectedText={selectedText}
-          scores={scores}
-        />
-      )}
-    </>
-  );
+  if (overallVerdict && scores) {
+    return (
+      <Popup
+        overallVerdict={overallVerdict}
+        selectedText={selectedText}
+        scores={scores}
+      />
+    );
+  }
+
+  return "No relevant article found :(";
 }
 
 export default App;
