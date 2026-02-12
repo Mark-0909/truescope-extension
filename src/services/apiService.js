@@ -1,29 +1,31 @@
-/**
- * Fetches analysis data from the TrueScope API
- * @param {string} text - The text to analyze
- * @returns {Promise<Object>} - Analysis results from the API
- */
-export const fetchAnalysisData = async (text) => {
-  try {
-    // Replace with your actual API endpoint
-    const API_URL = 'https://api.truescope.com/analyze';
-    
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ text: text })
-    });
+import axios from "axios";
 
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
+export const apiInstance = axios.create({
+  baseURL: `${import.meta.env.VITE_API_URL}/v1`,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+apiInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.data && error.response.data.message) {
+      return Promise.reject(error.response.data.message);
     }
+    return Promise.reject(error);
+  },
+);
 
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching analysis data:', error);
-    return null;
-  }
+/**
+ * Verifies the highlighted claim
+ * @param {string} claim - The claim to analyze
+ * @returns {Promise<Object>} - Verification results from the API
+ */
+export const verifyClaim = async (claim) => {
+  const res = await apiInstance.post("/verify", {
+    claim: claim,
+  });
+
+  return res.data;
 };
