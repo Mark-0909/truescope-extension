@@ -16,6 +16,12 @@ export default function ArticleCard({ score }) {
   );
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const handleUrlClick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    chrome.tabs.create({ url: score.url });
+  };
+
   return (
     <div
       className={`w-full border px-3 py-2 cursor-pointer transition-colors duration-200 ${
@@ -161,9 +167,9 @@ export default function ArticleCard({ score }) {
             </span>
           </div>
           <a
-            href={score.url}
+            href="#"
             className="text-xs text-blue-600 underline whitespace-nowrap"
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleUrlClick}
           >
             [Link to Article]
           </a>

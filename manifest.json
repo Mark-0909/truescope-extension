@@ -14,12 +14,10 @@
     "scripting",
     "contextMenus",
     "storage",
-    "sidePanel"
+    "sidePanel",
+    "tabs"
   ],
-  "host_permissions": [
-    "http://*/*",
-    "https://*/*"
-  ],
+  "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
     "service_worker": "src/background.js"
   }
