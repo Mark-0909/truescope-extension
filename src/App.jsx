@@ -1,26 +1,55 @@
-import { useState, useEffect } from 'react'
-import Popup from './components/Popup.jsx'
-import { fetchAnalysisData } from './services/apiService.js'
+import { useState, useEffect } from "react";
+import Popup from "./components/Popup.jsx";
+import { verifyClaim } from "./services/apiService.js";
+import Spinner from "./components/Spinner.jsx";
+import { useQuery } from "@tanstack/react-query";
 
 function App() {
-  const [analysisData, setAnalysisData] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [overallVerdict, setOverallVerdict] = useState(null);
+  const [scores, setScores] = useState(null);
+  const [selectedText, setSelectedText] = useState(null);
+
+  const { isLoading, isError, data, error } = useQuery({
+    queryKey: ["verify"],
+    queryFn: () => verifyClaim(selectedText),
+    enabled: selectedText !== null,
+  });
 
   useEffect(() => {
-    // Listen for selected text from the background script
-    chrome.storage.local.get(['selectedText'], async (result) => {
+    // Get selected text on page render
+    chrome.storage.local.get(["selectedText"], async (result) => {
       if (result.selectedText) {
-        setLoading(true);
-        const data = await fetchAnalysisData(result.selectedText);
-        setAnalysisData(data);
-        setLoading(false);
+        setSelectedText(result.selectedText);
       }
     });
   }, []);
 
-  return(
-    <Popup Verdict="fake"/>
-  )
+  useEffect(() => {
+    if (!data) return;
+
+    setScores(data.results);
+    setOverallVerdict(data.overall_verdict);
+  }, [data]);
+
+  if (!data || isLoading) {
+    return (
+      <div className="w-screen h-screen flex justify-center items-center">
+        <Spinner size={100} />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {overallVerdict && scores && (
+        <Popup
+          overallVerdict={overallVerdict}
+          selectedText={selectedText}
+          scores={scores}
+        />
+      )}
+    </>
+  );
 }
 
-export default App
+export default App;
