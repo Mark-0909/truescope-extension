@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@tanstack/react-query": "^5.90.20",
+    "axios": "^1.13.5",
+    "lucide-react": "^0.563.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
