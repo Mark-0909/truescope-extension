@@ -1,19 +1,15 @@
 import { useState, useEffect } from "react";
 import Popup from "./components/Popup.jsx";
 import { verifyClaim } from "./services/apiService.js";
-import Spinner from "./components/Spinner.jsx";
-import { useQuery } from "@tanstack/react-query";
 
 function App() {
   const [overallVerdict, setOverallVerdict] = useState(null);
-  const [scores, setScores] = useState(null);
+  const [scores, setScores] = useState([]);
   const [selectedText, setSelectedText] = useState(null);
-
-  const { isLoading, isError, data, error } = useQuery({
-    queryKey: ["verify"],
-    queryFn: () => verifyClaim(selectedText),
-    enabled: selectedText !== null,
-  });
+  const [metadata, setMetadata] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Get selected text on page render
@@ -25,26 +21,71 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!data) return;
+    if (!selectedText) return;
 
-    setScores(data.results);
-    setOverallVerdict(data.overall_verdict);
-  }, [data]);
+    setIsLoading(true);
+    setError(null);
+    // Initialize with 0 values
+    setOverallVerdict(0);
+    setStats({
+      overall_verdict: 0,
+      bias_divergence: 0,
+      truth_confidence_score: 0,
+      bias_consistency: 0,
+      total_processed: 0,
+    });
 
-  if (!data || isLoading) {
+    verifyClaim(selectedText, {
+      onMetadata: (data) => {
+        console.log("Received metadata:", data);
+        setMetadata(data);
+      },
+      onResult: (result) => {
+        console.log("Received result:", result);
+        // Extract article data from result.data and add to scores
+        setScores((prev) => [...prev, result.data]);
+        // Update stats as each result comes in
+        if (result.stats) {
+          setStats(result.stats);
+        }
+      },
+      onComplete: (data) => {
+        console.log("Verification complete:", data);
+        // Extract final stats from complete message
+        if (data.stats) {
+          setOverallVerdict(data.stats.overall_verdict);
+          setStats(data.stats);
+        }
+        setIsLoading(false);
+      },
+      onError: (err) => {
+        console.error("Verification error:", err);
+        setError(err.message);
+        setIsLoading(false);
+      },
+    }).catch((err) => {
+      console.error("Failed to verify claim:", err);
+      setError(err.message);
+      setIsLoading(false);
+    });
+  }, [selectedText]);
+
+  if (error) {
     return (
-      <div className="w-screen h-screen flex justify-center items-center">
-        <Spinner size={100} />
+      <div className="w-screen h-screen flex justify-center items-center text-red-500">
+        Error: {error}
       </div>
     );
   }
 
-  if (overallVerdict && scores) {
+  if (selectedText) {
     return (
       <Popup
-        overallVerdict={overallVerdict}
+        overallVerdict={overallVerdict || 0}
         selectedText={selectedText}
         scores={scores}
+        stats={stats}
+        isLoading={isLoading}
       />
     );
   }
