@@ -107,9 +107,12 @@ function App() {
   }, [selectedText]);
 
   if (error) {
+    console.error("Error occurred:", error); // Log error to console
     return (
-      <div className="w-screen h-screen flex justify-center items-center text-red-500">
-        Error: {error}
+      <div className="w-screen h-screen flex justify-center items-center text-slate-700">
+        <div className="text-center">
+          <p className="font-bold mb-2">Oops, something went wrong</p>
+        </div>
       </div>
     );
   }
