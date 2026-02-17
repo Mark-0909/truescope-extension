@@ -6,6 +6,7 @@
  * @param {Function} callbacks.onResult - Called for each article result
  * @param {Function} callbacks.onComplete - Called when verification is complete
  * @param {Function} callbacks.onError - Called on error
+ * @param {Function} callbacks.onWebSocketCreated - Called with the WebSocket instance
  * @returns {Promise<void>}
  */
 export const verifyClaim = async (claim, callbacks = {}) => {
@@ -17,6 +18,9 @@ export const verifyClaim = async (claim, callbacks = {}) => {
 
     const ws = new WebSocket(wsUrl);
     let hasReceivedData = false;
+
+    // Notify that WebSocket was created so caller can store reference
+    callbacks.onWebSocketCreated?.(ws);
 
     ws.onopen = () => {
       console.log("WebSocket connected, sending claim:", claim);

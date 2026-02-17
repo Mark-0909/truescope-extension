@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Popup from "./components/Popup.jsx";
 import { verifyClaim } from "./services/apiService.js";
 
@@ -10,22 +10,46 @@ function App() {
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const wsRef = useRef(null);
 
   useEffect(() => {
-    // Get selected text on page render
-    chrome.storage.local.get(["selectedText"], async (result) => {
+    // Get selected text on initial load
+    chrome.storage.local.get(["selectedText"], (result) => {
       if (result.selectedText) {
         setSelectedText(result.selectedText);
       }
     });
+
+    // Listen for storage changes (when user selects new text while panel is open)
+    const handleStorageChange = (changes, areaName) => {
+      if (areaName === "local" && changes.selectedText) {
+        console.log("New text selected:", changes.selectedText.newValue);
+        setSelectedText(changes.selectedText.newValue);
+      }
+    };
+
+    chrome.storage.onChanged.addListener(handleStorageChange);
+
+    // Cleanup listener on unmount
+    return () => {
+      chrome.storage.onChanged.removeListener(handleStorageChange);
+    };
   }, []);
 
   useEffect(() => {
     if (!selectedText) return;
 
+    // Close any previous WebSocket connection
+    if (wsRef.current) {
+      console.log("Closing previous WebSocket");
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+
+    // Reset all state for new claim
     setIsLoading(true);
     setError(null);
-    // Initialize with 0 values
+    setScores([]); // Clear previous scores
     setOverallVerdict(0);
     setStats({
       overall_verdict: 0,
@@ -63,11 +87,23 @@ function App() {
         setError(err.message);
         setIsLoading(false);
       },
+      onWebSocketCreated: (ws) => {
+        wsRef.current = ws;
+      },
     }).catch((err) => {
       console.error("Failed to verify claim:", err);
       setError(err.message);
       setIsLoading(false);
     });
+
+    // Cleanup function when component unmounts or selectedText changes
+    return () => {
+      if (wsRef.current) {
+        console.log("Cleaning up WebSocket");
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
   }, [selectedText]);
 
   if (error) {
