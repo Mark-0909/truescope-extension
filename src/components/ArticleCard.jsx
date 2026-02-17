@@ -34,12 +34,16 @@ export default function ArticleCard({ score }) {
       onClick={() => setIsExpanded(!isExpanded)}
     >
       {/*Header with Icon and Title*/}
-      <div className="flex flex-row items-center justify-between h-12">
+      <div className="flex flex-row items-center justify-between h-auto">
         <div className="flex flex-row items-center gap-2 flex-1">
           <div className="flex-1">
-            <p className="text-sm font-bold text-gray-800">
+            <p
+              className={`text-sm font-bold text-gray-800 transition-all duration-300 ease-in-out ${!isExpanded ? "line-clamp-3" : ""}`}
+            >
               {formatSource(score.source)}:{" "}
-              <span className="font-semibold">"{score.title}"</span>
+              <span className="font-semibold overflow-ellipsis">
+                "{score.title}"
+              </span>
             </p>
           </div>
         </div>
