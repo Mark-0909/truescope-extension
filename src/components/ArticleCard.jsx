@@ -6,6 +6,7 @@ import {
   mapVerdictToLabel,
   verdictToTruthScore,
 } from "../utils/scripts.js";
+import { LoaderCircle } from "lucide-react";
 
 export default function ArticleCard({ score }) {
   const [verdictLabel, setVerdictLabel] = useState(
@@ -131,8 +132,19 @@ export default function ArticleCard({ score }) {
               <span className="font-bold">Published Date:</span>{" "}
               <span>{formatDate(score.publish_date)}</span>
             </p>
-            <p className="text-sm text-gray-700">
-              <span className="font-bold">Remarks:</span> {score.remarks}
+
+            <p
+              className={`text-sm text-gray-700 ${score.remarks ? "" : "flex items-center gap-1"}`}
+            >
+              <span className="font-bold">Remarks:</span>{" "}
+              {score.remarks ? (
+                score.remarks
+              ) : (
+                <LoaderCircle
+                  className="animate-spin"
+                  style={{ animationDuration: "4s" }}
+                />
+              )}
             </p>
           </div>
         </div>
