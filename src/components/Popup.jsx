@@ -75,7 +75,7 @@ export default function Popup({
     mapVerdictToLabel(overallVerdict),
   );
   const [colors, setColors] = useState(
-    getColorClasses(verdictLabel, isLoading),
+    getColorClasses(mapVerdictToLabel(overallVerdict), isLoading),
   );
   const [truthScore, setTruthScore] = useState(0);
   const [biasDivergence, setBiasDivergence] = useState(0);
@@ -101,19 +101,14 @@ export default function Popup({
       setBiasConsistency(newBiasConsistency);
 
       // Update verdict label/colors and numeric score
-      const finalVerdictValue = stats.final_verdict ?? 0;
       const overallVerdictValue = stats.overall_verdict ?? 0;
-      const newVerdictLabel = mapVerdictToLabel(finalVerdictValue);
-      const newFinalVerdictScore = Math.round(
-        ((finalVerdictValue + 1) / 2) * 100,
-      );
+      const newVerdictLabel = mapVerdictToLabel(overallVerdictValue);
       const newOverallVerdictScore = Math.round(
         ((overallVerdictValue + 1) / 2) * 100,
       );
 
       setVerdictLabel(newVerdictLabel);
       setColors(getColorClasses(newVerdictLabel, false));
-      setFinalVerdictScore(newFinalVerdictScore);
       setOverallVerdictScore(newOverallVerdictScore);
     }
   }, [stats]);
@@ -151,17 +146,6 @@ export default function Popup({
         ) : (
           <>
             <div className="p-1 space-y-1 w-2/3">
-              <p className="flex items-center gap-1 text-[15px] font-semibold text-black/70">
-                <span>Final Verdict</span>
-                <InfoCard
-                  title="Final Verdict"
-                  definition="This score represents the final verdict based on the full analysis."
-                />
-                <span>:</span>
-                <span className="font-bold text-base">
-                  {finalVerdictScore}%
-                </span>
-              </p>
               <p className="flex items-center gap-1 text-[15px] font-semibold text-black/70">
                 <span>Overall Verdict</span>
                 <InfoCard
