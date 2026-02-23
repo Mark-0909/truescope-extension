@@ -146,44 +146,77 @@ export default function Popup({
         ) : (
           <>
             <div className="p-1 space-y-1 w-2/3">
-              <p className="flex items-center gap-1 text-[15px] font-semibold text-black/70">
-                <span>Overall Verdict</span>
-                <InfoCard
-                  title="Overall Verdict"
-                  definition="This score represents the overall verdict based on aggregated article evidence."
-                />
-                <span>:</span>
-                <span className="font-bold text-base">
+              <div className="flex flex-col items-center w-full mt-1">
+                <span
+                  className={`font-bold text-3xl text-black mb-0 ${colors.textColor}`}
+                >
                   {overallVerdictScore}%
                 </span>
-              </p>
-              <p className="flex items-center gap-1 text-[15px] font-semibold text-black/70">
-                <span>Truth Confidence Score</span>
-                <InfoCard
-                  title="Truth Confidence Score"
-                  definition="This score represents the confidence level in the truthfulness of the statement based on the analysis of supporting and refuting articles."
-                />
-                <span>:</span>
-                <span className="font-bold text-base">{truthScore}%</span>
-              </p>
-              <p className="flex items-center gap-1 text-base font-semibold text-black/70">
-                <span>Bias Divergence</span>
-                <InfoCard
-                  title="Bias Divergence"
-                  definition="This score measures the extent of divergence in bias among different sources."
-                />
-                <span>:</span>
-                <span className="font-bold text-base">{biasDivergence}%</span>
-              </p>
-              <p className="flex items-center gap-1 text-base font-semibold text-black/70">
-                <span>Bias Consistency Scoring</span>
-                <InfoCard
-                  title="Bias Consistency Scoring"
-                  definition="This score indicates how consistent the bias is across different sources supporting the statement."
-                />
-                <span>:</span>
-              </p>
-              <BiasBar type="consistency" value={biasConsistency} />
+                <div className="flex items-center gap-1 text-[15px] font-semibold text-black/70">
+                  <span>Overall Verdict</span>
+                  <InfoCard
+                    title="Overall Verdict"
+                    definition="This score represents the overall verdict based on aggregated article evidence."
+                  />
+                </div>
+              </div>
+              <BiasBar type="consistency" value={overallVerdictScore} />
+              <div className="flex flex-row items-end justify-between p-1 w-full border-t-2 border-black/20 mt-2">
+                {/* Truth Confidence */}
+                <div className="flex flex-col items-center mt-0 flex-1">
+                  <span className="font-semibold text-[22px] text-black mb-1">
+                    {truthScore}%
+                  </span>
+                  <div className="relative flex flex-row items-center gap-1 text-[13px] text-black leading-tight">
+                    <span>Truth</span>
+                    <span className="absolute -right-4 -top-1">
+                      <InfoCard
+                        title="Truth Confidence Score"
+                        definition="This score represents the confidence level in the truthfulness of the statement based on the analysis of supporting and refuting articles."
+                      />
+                    </span>
+                  </div>
+                  <span className="text-[13px] text-black mt-0">
+                    Confidence
+                  </span>
+                </div>
+                {/* Bias Divergence */}
+                <div className="flex flex-col items-center mt-0 flex-1">
+                  <span className="font-semibold text-[22px] text-black mb-1">
+                    {biasDivergence}%
+                  </span>
+                  <div className="relative flex flex-row items-center gap-1 text-[13px] text-black leading-tight">
+                    <span>Bias</span>
+                    <span className="absolute -right-4 -top-1">
+                      <InfoCard
+                        title="Bias Divergence"
+                        definition="This score measures the extent of divergence in bias among different sources."
+                      />
+                    </span>
+                  </div>
+                  <span className="text-[13px] text-black mt-0">
+                    Divergence
+                  </span>
+                </div>
+                {/* Bias Consistency */}
+                <div className="flex flex-col items-center mt-0 flex-1">
+                  <span className="font-semibold text-[22px] text-black mb-1">
+                    {biasConsistency}%
+                  </span>
+                  <div className="relative flex flex-row items-center gap-1 text-[13px] text-black leading-tight">
+                    <span>Bias</span>
+                    <span className="absolute -right-4 -top-1">
+                      <InfoCard
+                        title="Bias Consistency Scoring"
+                        definition="This score indicates how consistent the bias is across different sources supporting the statement."
+                      />
+                    </span>
+                  </div>
+                  <span className="text-[13px] text-black mt-0">
+                    Consistency
+                  </span>
+                </div>
+              </div>
             </div>
             <div className="flex flex-col items-center justify-center p-1 w-1/3 border-l-2 border-black/20 space-y-0">
               <img className="w-23 h-23 object-contain" src={colors.icon} />
