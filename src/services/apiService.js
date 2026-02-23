@@ -33,20 +33,24 @@ export const verifyClaim = async (claim, callbacks = {}) => {
       try {
         const data = JSON.parse(event.data);
 
-        // Handle initial metadata
-        if (data.entities && !data.type) {
-          console.log("Initial metadata received:", data);
-          callbacks.onMetadata?.(data);
-        }
-        // Handle individual result
-        else if (data.type === "result") {
-          console.log("Result received:", data);
+        if (data.type === "search_hits") {
+          console.log("Search results received:", data);
+          callbacks.onSearchHit?.(data.hits);
+        } else if (data.type === "result") {
+          console.log("Process results received:", data);
           callbacks.onResult?.(data);
-        }
-        // Handle completion
-        else if (data.type === "complete") {
+        } else if (data.type === "stats") {
+          console.log("Stats received:", data);
+          callbacks.onStats?.(data);
+        } else if (data.type === "remarks") {
+          console.log("Remarks received:", data);
+          callbacks.onRemarks?.(data);
+        } else if (data.type === "complete") {
           console.log("Verification complete:", data);
-          callbacks.onComplete?.(data);
+          ws.close();
+        } else if (data.type === "error") {
+          console.log("Error during verification:", data);
+          callbacks.onError?.(new Error(data.message));
           ws.close();
         }
       } catch (error) {

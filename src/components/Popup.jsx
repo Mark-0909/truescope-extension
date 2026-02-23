@@ -6,7 +6,8 @@ import Spinner from "./Spinner.jsx";
 import TruthIcon from "../assets/Truth_Icon.png";
 import FakeIcon from "../assets/Fake_Icon.png";
 import NeedsContextIcon from "../assets/Needs_Context_Icon.png";
-import { mapVerdictToLabel, verdictToTruthScore } from "../utils/scripts.js";
+import { mapVerdictToLabel } from "../utils/scripts.js";
+import SearchResultCard from "./SearchResultCard.jsx";
 
 const getColorClasses = (verdictLabel, isAnalyzing = false) => {
   // Use neutral gray while loading
@@ -64,7 +65,9 @@ const getColorClasses = (verdictLabel, isAnalyzing = false) => {
 export default function Popup({
   overallVerdict,
   selectedText,
-  scores,
+  phase,
+  searchHits,
+  results,
   stats,
   isLoading,
 }) {
@@ -215,9 +218,20 @@ export default function Popup({
         <p className="px-2 py-2 font-bold text-[13px]">Supporting Articles</p>
       </div>
       <div className="flex-1 bg-white min-h-0 p-0 overflow-hidden overflow-y-auto flex flex-col gap-0">
-        {scores.map((score, idx) => (
-          <ArticleCard key={idx} score={score} />
-        ))}
+        {phase === 0 && (
+          <>
+            {searchHits.map((searchHit, idx) => (
+              <SearchResultCard key={idx} searchHit={searchHit} />
+            ))}
+          </>
+        )}
+        {phase === 1 && (
+          <>
+            {results.map((score, idx) => (
+              <ArticleCard key={idx} score={score} />
+            ))}
+          </>
+        )}
       </div>
     </div>
   );

@@ -4,13 +4,17 @@ import { verifyClaim } from "./services/apiService.js";
 
 function App() {
   const [overallVerdict, setOverallVerdict] = useState(null);
-  const [scores, setScores] = useState([]);
+  const [searchHits, setSearchHits] = useState([]);
+  const [results, setResults] = useState([]);
   const [selectedText, setSelectedText] = useState(null);
-  const [metadata, setMetadata] = useState(null);
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const wsRef = useRef(null);
+
+  // Phase 0 = Still searching for relevant articles. Displays initial search results.
+  // Phase 1 = Filtered search results according to relevance, and compute scores for each. Display filtered results with scores.
+  const [phase, setPhase] = useState(0);
 
   useEffect(() => {
     // Get selected text on initial load
@@ -47,9 +51,11 @@ function App() {
     }
 
     // Reset all state for new claim
+    setPhase(0);
     setIsLoading(true);
     setError(null);
-    setScores([]); // Clear previous scores
+    setSearchHits([]);
+    setResults([]);
     setOverallVerdict(0);
     setStats({
       overall_verdict: 0,
@@ -60,30 +66,36 @@ function App() {
     });
 
     verifyClaim(selectedText, {
-      onMetadata: (data) => {
-        console.log("Received metadata:", data);
-        setMetadata(data);
+      onSearchHit: (hits) => {
+        setPhase(0);
+        setSearchHits(hits);
       },
-      onResult: (result) => {
-        console.log("Received result:", result);
-        // Extract article data from result.data and add to scores
-        setScores((prev) => [...prev, result.data]);
-        // Update stats as each result comes in
-        if (result.stats) {
-          setStats(result.stats);
+      onResult: (data) => {
+        setPhase(1);
+
+        // Only append if not skipped
+        if (!data.skipped) {
+          setResults((prev) => [...prev, { ...data.data, remarks: null }]);
         }
       },
-      onComplete: (data) => {
-        console.log("Verification complete:", data);
-        // Extract final stats from complete message
+      onStats: (data) => {
         if (data.stats) {
           setOverallVerdict(data.stats.overall_verdict);
           setStats(data.stats);
         }
         setIsLoading(false);
       },
+      onRemarks: (data) => {
+        // Update specific result with the new remark
+        setResults((prevResults) =>
+          prevResults.map((result) =>
+            result.doc_id === data.doc_id
+              ? { ...result, remarks: data.remarks }
+              : result,
+          ),
+        );
+      },
       onError: (err) => {
-        console.error("Verification error:", err);
         setError(err.message);
         setIsLoading(false);
       },
@@ -91,7 +103,6 @@ function App() {
         wsRef.current = ws;
       },
     }).catch((err) => {
-      console.error("Failed to verify claim:", err);
       setError(err.message);
       setIsLoading(false);
     });
@@ -122,7 +133,9 @@ function App() {
       <Popup
         overallVerdict={overallVerdict || 0}
         selectedText={selectedText}
-        scores={scores}
+        phase={phase}
+        searchHits={searchHits}
+        results={results}
         stats={stats}
         isLoading={isLoading}
       />
