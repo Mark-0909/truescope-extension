@@ -113,6 +113,11 @@ export default function Popup({
 
   // Update values when stats change
   const [active, setActive] = useState("All");
+
+  // Reset filter to 'All' when selectedText (claim) changes
+  useEffect(() => {
+    setActive("All");
+  }, [selectedText]);
   // Determine which data set to use
   const items = phase === 0 ? searchHits : results;
   // Collect unique categories and counts using mapVerdictToLabel
