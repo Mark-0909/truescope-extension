@@ -83,6 +83,24 @@ export default function Popup({
   const [biasConsistency, setBiasConsistency] = useState(0);
   const [finalVerdictScore, setFinalVerdictScore] = useState(0);
   const [overallVerdictScore, setOverallVerdictScore] = useState(0);
+  const [archivedIds, setArchivedIds] = useState(new Set());
+
+  // Helper to get a unique id for an article
+  function getArticleId(item, idx) {
+    return (
+      item.id ||
+      `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`
+    );
+  }
+
+  // Handler to archive an article by id
+  const handleArchive = (id) => {
+    setArchivedIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  };
 
   // Update values when stats change
   const [active, setActive] = useState("All");
@@ -110,19 +128,28 @@ export default function Popup({
     Neutral: [],
     Archived: [],
   };
-  items.forEach((item) => {
-    if (item.archived) {
-      categorizedArticles.Archived.push(item);
+  items.forEach((item, idx) => {
+    const uniqueId = getArticleId(item, idx);
+    const isArchived = archivedIds.has(uniqueId) || item.archived;
+    const itemWithId = { ...item, id: uniqueId };
+    if (isArchived) {
+      categorizedArticles.Archived.push({ ...itemWithId, archived: true });
     } else {
       const verdict = mapVerdictToLabel(item.verdict);
       const display = verdictDisplayMap[verdict] || verdict;
       if (categorizedArticles[display]) {
-        categorizedArticles[display].push(item);
+        categorizedArticles[display].push(itemWithId);
       }
     }
   });
+  // Compute non-archived items for correct filter counts
+  const nonArchivedItems = items.filter((item, idx) => {
+    const uniqueId = item.id || `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`;
+    return !(archivedIds.has(uniqueId) || item.archived);
+  });
+
   const filters = [
-    { label: "All", count: items.length },
+    { label: "All", count: nonArchivedItems.length },
     { label: "Support", count: categorizedArticles.Support.length },
     { label: "Refute", count: categorizedArticles.Refute.length },
     { label: "Neutral", count: categorizedArticles.Neutral.length },
@@ -294,12 +321,17 @@ export default function Popup({
           else if (active === "Refute") list = categorizedArticles.Refute;
           else if (active === "Neutral") list = categorizedArticles.Neutral;
           else if (active === "Archived") list = categorizedArticles.Archived;
-          else if (active === "All") list = items;
+          else if (active === "All") list = items.filter((item, idx) => {
+            const uniqueId = item.id || `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`;
+            return !(archivedIds.has(uniqueId) || item.archived);
+          });
           const Card = phase === 0 ? SearchResultCard : ArticleCard;
           return list.map((item, idx) => (
             <Card
-              key={idx}
-              {...(phase === 0 ? { searchHit: item } : { score: item })}
+              key={item.id || idx}
+              {...(phase === 0
+                ? { searchHit: item }
+                : { score: item, onArchive: handleArchive })}
             />
           ));
         })()}

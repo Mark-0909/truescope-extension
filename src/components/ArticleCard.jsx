@@ -8,7 +8,7 @@ import {
 } from "../utils/scripts.js";
 import { LoaderCircle } from "lucide-react";
 
-export default function ArticleCard({ score }) {
+export default function ArticleCard({ score, onArchive }) {
   const verdictLabel = mapVerdictToLabel(score.verdict);
   const truthScore = verdictToTruthScore(score.verdict);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -18,6 +18,9 @@ export default function ArticleCard({ score }) {
     e.preventDefault();
     chrome.tabs.create({ url: score.url });
   };
+
+  // Show archive button only if not archived
+  const showArchive = onArchive && !score.archived;
 
   return (
     <div
@@ -44,6 +47,19 @@ export default function ArticleCard({ score }) {
             </p>
           </div>
         </div>
+        {/* Archive Button */}
+        {showArchive && (
+          <button
+            className="ml-2 px-2 py-1 text-xs bg-gray-200 hover:bg-gray-400 rounded border border-gray-400 text-gray-700"
+            onClick={(e) => {
+              e.stopPropagation();
+              onArchive(score.id);
+            }}
+            title="Archive this article"
+          >
+            Archive
+          </button>
+        )}
         {/* Accordion Chevron */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
