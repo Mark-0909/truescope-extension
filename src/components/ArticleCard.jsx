@@ -9,12 +9,8 @@ import {
 import { LoaderCircle } from "lucide-react";
 
 export default function ArticleCard({ score }) {
-  const [verdictLabel, setVerdictLabel] = useState(
-    mapVerdictToLabel(score.verdict),
-  );
-  const [truthScore, setTruthScore] = useState(
-    verdictToTruthScore(score.verdict),
-  );
+  const verdictLabel = mapVerdictToLabel(score.verdict);
+  const truthScore = verdictToTruthScore(score.verdict);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleUrlClick = (e) => {

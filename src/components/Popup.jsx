@@ -86,13 +86,49 @@ export default function Popup({
 
   // Update values when stats change
   const [active, setActive] = useState("All");
+  // Determine which data set to use
+  const items = phase === 0 ? searchHits : results;
+  // Collect unique categories and counts using mapVerdictToLabel
+  const categoryMap = items.reduce((acc, item) => {
+    let cat = item.archived ? "Archived" : mapVerdictToLabel(item.verdict);
+    cat = cat.charAt(0).toUpperCase() + cat.slice(1);
+    acc[cat] = (acc[cat] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Map verdict labels for filter display only
+  const verdictDisplayMap = {
+    true: "Support",
+    fake: "Refute",
+    neutral: "Neutral",
+  };
+
+  // Precompute lists for each category for consistency
+  const categorizedArticles = {
+    Support: [],
+    Refute: [],
+    Neutral: [],
+    Archived: [],
+  };
+  items.forEach((item) => {
+    if (item.archived) {
+      categorizedArticles.Archived.push(item);
+    } else {
+      const verdict = mapVerdictToLabel(item.verdict);
+      const display = verdictDisplayMap[verdict] || verdict;
+      if (categorizedArticles[display]) {
+        categorizedArticles[display].push(item);
+      }
+    }
+  });
   const filters = [
-    { label: "All", count: 10 },
-    { label: "Support", count: 3 },
-    { label: "Neutral", count: 4 },
-    { label: "Refute", count: 3 },
-    { label: "Archived", count: 0 },
-  ];
+    { label: "All", count: items.length },
+    { label: "Support", count: categorizedArticles.Support.length },
+    { label: "Refute", count: categorizedArticles.Refute.length },
+    { label: "Neutral", count: categorizedArticles.Neutral.length },
+    { label: "Archived", count: categorizedArticles.Archived.length },
+  ].filter((f) => f.count > 0 || f.label === "All");
+
   useEffect(() => {
     if (stats) {
       const newTruthScore = Math.round(
@@ -242,29 +278,31 @@ export default function Popup({
       {/* Articles Area */}
       <div className={`${colors.statement} text-white`}>
         <p className="px-2 py-2 font-bold text-[13px]">Supporting Articles</p>
-        {/* Filter bar outside colored area */}
-        <FilterArea
-          active={active}
-          setActive={setActive}
-          filters={filters}
-          bgClass={colors.statement}
-        />
-        <div className="flex-1 bg-white min-h-0 p-0 overflow-hidden overflow-y-auto flex flex-col gap-0">
-          {phase === 0 && (
-            <>
-              {searchHits.map((searchHit, idx) => (
-                <SearchResultCard key={idx} searchHit={searchHit} />
-              ))}
-            </>
-          )}
-          {phase === 1 && (
-            <>
-              {results.map((score, idx) => (
-                <ArticleCard key={idx} score={score} />
-              ))}
-            </>
-          )}
-        </div>
+      </div>
+      {/* Filter bar outside colored area */}
+      <FilterArea
+        active={active}
+        setActive={setActive}
+        filters={filters}
+        bgClass={colors.statement}
+      />
+      {/* Scrollable article list fills remaining space */}
+      <div className="flex-1 bg-white min-h-0 p-0 overflow-hidden overflow-y-auto flex flex-col gap-0">
+        {(() => {
+          let list = items;
+          if (active === "Support") list = categorizedArticles.Support;
+          else if (active === "Refute") list = categorizedArticles.Refute;
+          else if (active === "Neutral") list = categorizedArticles.Neutral;
+          else if (active === "Archived") list = categorizedArticles.Archived;
+          else if (active === "All") list = items;
+          const Card = phase === 0 ? SearchResultCard : ArticleCard;
+          return list.map((item, idx) => (
+            <Card
+              key={idx}
+              {...(phase === 0 ? { searchHit: item } : { score: item })}
+            />
+          ));
+        })()}
       </div>
     </div>
   );
