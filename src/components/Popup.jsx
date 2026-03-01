@@ -102,6 +102,15 @@ export default function Popup({
     });
   };
 
+  // Handler to unarchive an article by id
+  const handleUnarchive = (id) => {
+    setArchivedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
   // Update values when stats change
   const [active, setActive] = useState("All");
   // Determine which data set to use
@@ -144,7 +153,9 @@ export default function Popup({
   });
   // Compute non-archived items for correct filter counts
   const nonArchivedItems = items.filter((item, idx) => {
-    const uniqueId = item.id || `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`;
+    const uniqueId =
+      item.id ||
+      `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`;
     return !(archivedIds.has(uniqueId) || item.archived);
   });
 
@@ -321,17 +332,26 @@ export default function Popup({
           else if (active === "Refute") list = categorizedArticles.Refute;
           else if (active === "Neutral") list = categorizedArticles.Neutral;
           else if (active === "Archived") list = categorizedArticles.Archived;
-          else if (active === "All") list = items.filter((item, idx) => {
-            const uniqueId = item.id || `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`;
-            return !(archivedIds.has(uniqueId) || item.archived);
-          });
+          else if (active === "All")
+            list = items
+              .map((item, idx) => {
+                const uniqueId =
+                  item.id ||
+                  `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`;
+                return { ...item, id: uniqueId };
+              })
+              .filter((item) => !(archivedIds.has(item.id) || item.archived));
           const Card = phase === 0 ? SearchResultCard : ArticleCard;
           return list.map((item, idx) => (
             <Card
               key={item.id || idx}
               {...(phase === 0
                 ? { searchHit: item }
-                : { score: item, onArchive: handleArchive })}
+                : {
+                    score: item,
+                    onArchive: !item.archived ? handleArchive : undefined,
+                    onUnarchive: item.archived ? handleUnarchive : undefined,
+                  })}
             />
           ));
         })()}
