@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import FilterArea from "./filterArea.jsx";
 import BiasBar from "./BiasBar.jsx";
 import ArticleCard from "./ArticleCard.jsx";
 import InfoCard from "./InfoCard.jsx";
@@ -82,8 +83,95 @@ export default function Popup({
   const [biasConsistency, setBiasConsistency] = useState(0);
   const [finalVerdictScore, setFinalVerdictScore] = useState(0);
   const [overallVerdictScore, setOverallVerdictScore] = useState(0);
+  const [archivedIds, setArchivedIds] = useState(new Set());
+
+  // Helper to get a unique id for an article
+  function getArticleId(item, idx) {
+    return (
+      item.id ||
+      `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`
+    );
+  }
+
+  // Handler to archive an article by id
+  const handleArchive = (id) => {
+    setArchivedIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  };
+
+  // Handler to unarchive an article by id
+  const handleUnarchive = (id) => {
+    setArchivedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
 
   // Update values when stats change
+  const [active, setActive] = useState("All");
+
+  // Reset filter to 'All' when selectedText (claim) changes
+  useEffect(() => {
+    setActive("All");
+  }, [selectedText]);
+  // Determine which data set to use
+  const items = phase === 0 ? searchHits : results;
+  // Collect unique categories and counts using mapVerdictToLabel
+  const categoryMap = items.reduce((acc, item) => {
+    let cat = item.archived ? "Archived" : mapVerdictToLabel(item.verdict);
+    cat = cat.charAt(0).toUpperCase() + cat.slice(1);
+    acc[cat] = (acc[cat] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Map verdict labels for filter display only
+  const verdictDisplayMap = {
+    true: "Support",
+    fake: "Refute",
+    neutral: "Neutral",
+  };
+
+  // Precompute lists for each category for consistency
+  const categorizedArticles = {
+    Support: [],
+    Refute: [],
+    Neutral: [],
+    Archived: [],
+  };
+  items.forEach((item, idx) => {
+    const uniqueId = getArticleId(item, idx);
+    const isArchived = archivedIds.has(uniqueId) || item.archived;
+    const itemWithId = { ...item, id: uniqueId };
+    if (isArchived) {
+      categorizedArticles.Archived.push({ ...itemWithId, archived: true });
+    } else {
+      const verdict = mapVerdictToLabel(item.verdict);
+      const display = verdictDisplayMap[verdict] || verdict;
+      if (categorizedArticles[display]) {
+        categorizedArticles[display].push(itemWithId);
+      }
+    }
+  });
+  // Compute non-archived items for correct filter counts
+  const nonArchivedItems = items.filter((item, idx) => {
+    const uniqueId =
+      item.id ||
+      `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`;
+    return !(archivedIds.has(uniqueId) || item.archived);
+  });
+
+  const filters = [
+    { label: "All", count: nonArchivedItems.length },
+    { label: "Support", count: categorizedArticles.Support.length },
+    { label: "Refute", count: categorizedArticles.Refute.length },
+    { label: "Neutral", count: categorizedArticles.Neutral.length },
+    { label: "Archived", count: categorizedArticles.Archived.length },
+  ].filter((f) => f.count > 0 || f.label === "All");
+
   useEffect(() => {
     if (stats) {
       const newTruthScore = Math.round(
@@ -234,21 +322,44 @@ export default function Popup({
       <div className={`${colors.statement} text-white`}>
         <p className="px-2 py-2 font-bold text-[13px]">Supporting Articles</p>
       </div>
+      {/* Filter bar outside colored area */}
+      <FilterArea
+        active={active}
+        setActive={setActive}
+        filters={filters}
+        bgClass={colors.statement}
+      />
+      {/* Scrollable article list fills remaining space */}
       <div className="flex-1 bg-white min-h-0 p-0 overflow-hidden overflow-y-auto flex flex-col gap-0">
-        {phase === 0 && (
-          <>
-            {searchHits.map((searchHit, idx) => (
-              <SearchResultCard key={idx} searchHit={searchHit} />
-            ))}
-          </>
-        )}
-        {phase === 1 && (
-          <>
-            {results.map((score, idx) => (
-              <ArticleCard key={idx} score={score} />
-            ))}
-          </>
-        )}
+        {(() => {
+          let list = items;
+          if (active === "Support") list = categorizedArticles.Support;
+          else if (active === "Refute") list = categorizedArticles.Refute;
+          else if (active === "Neutral") list = categorizedArticles.Neutral;
+          else if (active === "Archived") list = categorizedArticles.Archived;
+          else if (active === "All")
+            list = items
+              .map((item, idx) => {
+                const uniqueId =
+                  item.id ||
+                  `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`;
+                return { ...item, id: uniqueId };
+              })
+              .filter((item) => !(archivedIds.has(item.id) || item.archived));
+          const Card = phase === 0 ? SearchResultCard : ArticleCard;
+          return list.map((item, idx) => (
+            <Card
+              key={item.id || idx}
+              {...(phase === 0
+                ? { searchHit: item }
+                : {
+                    score: item,
+                    onArchive: !item.archived ? handleArchive : undefined,
+                    onUnarchive: item.archived ? handleUnarchive : undefined,
+                  })}
+            />
+          ));
+        })()}
       </div>
     </div>
   );
