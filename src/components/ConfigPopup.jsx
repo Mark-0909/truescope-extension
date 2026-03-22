@@ -1,10 +1,12 @@
-import { useState } from "react";
 import { X } from "lucide-react";
 
-export default function ConfigPopup({ onClose, colors }) {
-  const [maxEvidence, setMaxEvidence] = useState(5);
-  const [includeFactChecks, setIncludeFactChecks] = useState(false);
-
+export default function ConfigPopup({
+  onClose,
+  colors,
+  maxEvidence,
+  includeFactChecks,
+  onUpdate,
+}) {
   // Manual mapping for standard Tailwind classes to ensure we get the right hex
   const colorMap = {
     "bg-red-900": "#7f1d1d",
@@ -22,6 +24,8 @@ export default function ConfigPopup({ onClose, colors }) {
   const themeHex = themeColorMatch
     ? `#${themeColorMatch[1]}`
     : colorMap[colors?.statement] || "#6366F1";
+
+  const themeClass = colors?.statement || "!bg-[#6366F1]";
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[100] backdrop-blur-[1px]">
@@ -61,7 +65,9 @@ export default function ConfigPopup({ onClose, colors }) {
                 min="1"
                 max="10"
                 value={maxEvidence}
-                onChange={(e) => setMaxEvidence(parseInt(e.target.value))}
+                onChange={(e) =>
+                  onUpdate({ maxEvidence: parseInt(e.target.value) })
+                }
                 className="w-full h-1.5 bg-[#E5E7EB] rounded-lg appearance-none cursor-pointer"
                 style={{ accentColor: themeHex }}
               />
@@ -77,7 +83,7 @@ export default function ConfigPopup({ onClose, colors }) {
           </div>
 
           {/* Toggle Section */}
-          <div className="bg-[#F8FAFC]/90 rounded-xl  flex items-center justify-between border border-gray-50">
+          <div className="bg-[#F8FAFC]/90 rounded-xl  flex items-center justify-between border border-gray-50 p-2">
             <div className="space-y-0.5">
               <p className="text-[15px] font-bold text-[#334155]">
                 Include Fact-Check Articles
@@ -88,7 +94,9 @@ export default function ConfigPopup({ onClose, colors }) {
             </div>
 
             <button
-              onClick={() => setIncludeFactChecks(!includeFactChecks)}
+              onClick={() =>
+                onUpdate({ includeFactChecks: !includeFactChecks })
+              }
               className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer !outline-none focus:!ring-0 !border-none !p-0"
               style={{
                 backgroundColor: includeFactChecks ? themeHex : "#CBD5E1",
@@ -102,9 +110,6 @@ export default function ConfigPopup({ onClose, colors }) {
             </button>
           </div>
         </div>
-
-        {/* Empty padding at bottom */}
-        <div className="pb-5"></div>
       </div>
     </div>
   );

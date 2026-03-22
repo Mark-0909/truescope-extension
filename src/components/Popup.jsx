@@ -88,6 +88,34 @@ export default function Popup({
   const [archivedIds, setArchivedIds] = useState(new Set());
   const [isConfigOpen, setIsConfigOpen] = useState(false);
 
+  // Settings persistence
+  const [maxEvidence, setMaxEvidence] = useState(5);
+  const [includeFactChecks, setIncludeFactChecks] = useState(false);
+
+  // Load settings from storage on mount
+  useEffect(() => {
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(["maxEvidence", "includeFactChecks"], (result) => {
+        if (result.maxEvidence !== undefined) setMaxEvidence(result.maxEvidence);
+        if (result.includeFactChecks !== undefined)
+          setIncludeFactChecks(result.includeFactChecks);
+      });
+    }
+  }, []);
+
+  const handleUpdateSettings = (newSettings) => {
+    if (newSettings.maxEvidence !== undefined) {
+      setMaxEvidence(newSettings.maxEvidence);
+    }
+    if (newSettings.includeFactChecks !== undefined) {
+      setIncludeFactChecks(newSettings.includeFactChecks);
+    }
+
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.set(newSettings);
+    }
+  };
+
   // Helper to get a unique id for an article
   function getArticleId(item, idx) {
     return (
@@ -376,6 +404,9 @@ export default function Popup({
         <ConfigPopup 
           onClose={() => setIsConfigOpen(false)} 
           colors={colors}
+          maxEvidence={maxEvidence}
+          includeFactChecks={includeFactChecks}
+          onUpdate={handleUpdateSettings}
         />
       )}
     </div>
