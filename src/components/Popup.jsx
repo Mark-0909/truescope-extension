@@ -88,11 +88,11 @@ export default function Popup({
   const [archivedIds, setArchivedIds] = useState(new Set())
   const [isConfigOpen, setIsConfigOpen] = useState(false)
 
-  // Settings persistence
+  // Settings defaults
   const [maxEvidence, setMaxEvidence] = useState(5)
-  const [includeFactChecks, setIncludeFactChecks] = useState(false)
+  const [includeFactChecks, setIncludeFactChecks] = useState(true)
 
-  // Load settings from storage on mount
+  // Load settings from storage
   useEffect(() => {
     if (
       typeof chrome !== 'undefined' &&
