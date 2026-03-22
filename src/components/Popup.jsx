@@ -9,6 +9,8 @@ import FakeIcon from "../assets/Fake_Icon.png";
 import NeedsContextIcon from "../assets/Needs_Context_Icon.png";
 import { mapVerdictToLabel } from "../utils/scripts.js";
 import SearchResultCard from "./SearchResultCard.jsx";
+import { Settings } from "lucide-react";
+import ConfigPopup from "./ConfigPopup.jsx";
 
 const getColorClasses = (verdictLabel, isAnalyzing = false) => {
   // Use neutral gray while loading
@@ -84,6 +86,7 @@ export default function Popup({
   const [finalVerdictScore, setFinalVerdictScore] = useState(0);
   const [overallVerdictScore, setOverallVerdictScore] = useState(0);
   const [archivedIds, setArchivedIds] = useState(new Set());
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
 
   // Helper to get a unique id for an article
   function getArticleId(item, idx) {
@@ -318,15 +321,23 @@ export default function Popup({
         )}
       </div>
 
-      {/* Articles Area */}
-      <div className={`${colors.statement} text-white`}>
-        <p className="px-2 py-2 font-bold text-[13px]">Supporting Articles</p>
-      </div>
+{/* Articles Area */}
+<div className={`${colors.statement} text-white flex justify-between items-center px-4 py-2`}>
+  <p className="font-bold text-[13px]">Supporting Articles</p>
+  
+  <button 
+    onClick={() => setIsConfigOpen(!isConfigOpen)}
+    className="!bg-transparent !border-none !p-1 !rounded-full hover:bg-white/20 transition-colors cursor-pointer flex items-center justify-center"
+  >
+    <Settings size={18} />
+  </button>
+</div>
+
       {/* Filter bar outside colored area */}
       <FilterArea
         active={active}
         setActive={setActive}
-        filters={filters}
+        filters={filters} 
         bgClass={colors.statement}
       />
       {/* Scrollable article list fills remaining space */}
@@ -361,6 +372,9 @@ export default function Popup({
           ));
         })()}
       </div>
+      {isConfigOpen && (
+        <ConfigPopup onClose={() => setIsConfigOpen(false)} />
+      )}
     </div>
   );
 }
