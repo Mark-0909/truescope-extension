@@ -1,69 +1,69 @@
-import { useState, useEffect } from "react";
-import FilterArea from "./filterArea.jsx";
-import BiasBar from "./BiasBar.jsx";
-import ArticleCard from "./ArticleCard.jsx";
-import InfoCard from "./InfoCard.jsx";
-import Spinner from "./Spinner.jsx";
-import TruthIcon from "../assets/Truth_Icon.png";
-import FakeIcon from "../assets/Fake_Icon.png";
-import NeedsContextIcon from "../assets/Needs_Context_Icon.png";
-import { mapVerdictToLabel } from "../utils/scripts.js";
-import SearchResultCard from "./SearchResultCard.jsx";
-import { Settings } from "lucide-react";
-import ConfigPopup from "./ConfigPopup.jsx";
+import { useState, useEffect } from 'react'
+import FilterArea from './filterArea.jsx'
+import BiasBar from './BiasBar.jsx'
+import ArticleCard from './ArticleCard.jsx'
+import InfoCard from './InfoCard.jsx'
+import Spinner from './Spinner.jsx'
+import TruthIcon from '../assets/Truth_Icon.png'
+import FakeIcon from '../assets/Fake_Icon.png'
+import NeedsContextIcon from '../assets/Needs_Context_Icon.png'
+import { mapVerdictToLabel } from '../utils/scripts.js'
+import SearchResultCard from './SearchResultCard.jsx'
+import { Settings } from 'lucide-react'
+import ConfigPopup from './ConfigPopup.jsx'
 
 const getColorClasses = (verdictLabel, isAnalyzing = false) => {
   // Use neutral gray while loading
   if (isAnalyzing) {
     return {
-      header: "bg-gray-500",
-      statement: "bg-gray-700",
-      hover: "hover:text-gray-300",
-      textColor: "text-gray-700",
+      header: 'bg-gray-500',
+      statement: 'bg-gray-700',
+      hover: 'hover:text-gray-300',
+      textColor: 'text-gray-700',
       icon: NeedsContextIcon,
-      label: "Analyzing...",
-    };
+      label: 'Analyzing...',
+    }
   }
 
   switch (verdictLabel) {
-    case "true":
+    case 'true':
       return {
-        header: "bg-green-500",
-        statement: "bg-green-900",
-        hover: "hover:text-green-300",
-        textColor: "text-green-900",
+        header: 'bg-green-500',
+        statement: 'bg-green-900',
+        hover: 'hover:text-green-300',
+        textColor: 'text-green-900',
         icon: TruthIcon,
-        label: "Likely True",
-      };
-    case "fake":
+        label: 'Likely True',
+      }
+    case 'fake':
       return {
-        header: "bg-red-500",
-        statement: "bg-red-900",
-        hover: "hover:text-red-300",
-        textColor: "text-red-900",
+        header: 'bg-red-500',
+        statement: 'bg-red-900',
+        hover: 'hover:text-red-300',
+        textColor: 'text-red-900',
         icon: FakeIcon,
-        label: "Likely Fake",
-      };
-    case "neutral":
+        label: 'Likely Fake',
+      }
+    case 'neutral':
       return {
-        header: "bg-yellow-500",
-        statement: "bg-yellow-800",
-        hover: "hover:text-yellow-300",
-        textColor: "text-yellow-700",
+        header: 'bg-yellow-500',
+        statement: 'bg-yellow-800',
+        hover: 'hover:text-yellow-300',
+        textColor: 'text-yellow-700',
         icon: NeedsContextIcon,
-        label: "Needs Context",
-      };
+        label: 'Needs Context',
+      }
     default:
       return {
-        header: "bg-red-500",
-        statement: "bg-red-900",
-        hover: "hover:text-red-300",
-        textColor: "text-red-900",
+        header: 'bg-red-500',
+        statement: 'bg-red-900',
+        hover: 'hover:text-red-300',
+        textColor: 'text-red-900',
         icon: FakeIcon,
-        label: "Likely Fake",
-      };
+        label: 'Likely Fake',
+      }
   }
-};
+}
 
 export default function Popup({
   overallVerdict,
@@ -76,95 +76,107 @@ export default function Popup({
 }) {
   const [verdictLabel, setVerdictLabel] = useState(
     mapVerdictToLabel(overallVerdict),
-  );
+  )
   const [colors, setColors] = useState(
     getColorClasses(mapVerdictToLabel(overallVerdict), isLoading),
-  );
-  const [truthScore, setTruthScore] = useState(0);
-  const [biasDivergence, setBiasDivergence] = useState(0);
-  const [biasConsistency, setBiasConsistency] = useState(0);
-  const [finalVerdictScore, setFinalVerdictScore] = useState(0);
-  const [overallVerdictScore, setOverallVerdictScore] = useState(0);
-  const [archivedIds, setArchivedIds] = useState(new Set());
-  const [isConfigOpen, setIsConfigOpen] = useState(false);
+  )
+  const [truthScore, setTruthScore] = useState(0)
+  const [biasDivergence, setBiasDivergence] = useState(0)
+  const [biasConsistency, setBiasConsistency] = useState(0)
+  const [finalVerdictScore, setFinalVerdictScore] = useState(0)
+  const [overallVerdictScore, setOverallVerdictScore] = useState(0)
+  const [archivedIds, setArchivedIds] = useState(new Set())
+  const [isConfigOpen, setIsConfigOpen] = useState(false)
 
   // Settings persistence
-  const [maxEvidence, setMaxEvidence] = useState(5);
-  const [includeFactChecks, setIncludeFactChecks] = useState(false);
+  const [maxEvidence, setMaxEvidence] = useState(5)
+  const [includeFactChecks, setIncludeFactChecks] = useState(false)
 
   // Load settings from storage on mount
   useEffect(() => {
-    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
-      chrome.storage.local.get(["maxEvidence", "includeFactChecks"], (result) => {
-        if (result.maxEvidence !== undefined) setMaxEvidence(result.maxEvidence);
-        if (result.includeFactChecks !== undefined)
-          setIncludeFactChecks(result.includeFactChecks);
-      });
+    if (
+      typeof chrome !== 'undefined' &&
+      chrome.storage &&
+      chrome.storage.local
+    ) {
+      chrome.storage.local.get(
+        ['maxEvidence', 'includeFactChecks'],
+        (result) => {
+          if (result.maxEvidence !== undefined)
+            setMaxEvidence(result.maxEvidence)
+          if (result.includeFactChecks !== undefined)
+            setIncludeFactChecks(result.includeFactChecks)
+        },
+      )
     }
-  }, []);
+  }, [])
 
   const handleUpdateSettings = (newSettings) => {
     if (newSettings.maxEvidence !== undefined) {
-      setMaxEvidence(newSettings.maxEvidence);
+      setMaxEvidence(newSettings.maxEvidence)
     }
     if (newSettings.includeFactChecks !== undefined) {
-      setIncludeFactChecks(newSettings.includeFactChecks);
+      setIncludeFactChecks(newSettings.includeFactChecks)
     }
 
-    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
-      chrome.storage.local.set(newSettings);
+    if (
+      typeof chrome !== 'undefined' &&
+      chrome.storage &&
+      chrome.storage.local
+    ) {
+      chrome.storage.local.set(newSettings)
     }
-  };
+  }
 
   // Helper to get a unique id for an article
   function getArticleId(item, idx) {
     return (
       item.id ||
-      `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`
-    );
+      `${item.source || ''}_${item.title || ''}_${item.publish_date || ''}_${idx}`
+    )
   }
 
   // Handler to archive an article by id
   const handleArchive = (id) => {
     setArchivedIds((prev) => {
-      const next = new Set(prev);
-      next.add(id);
-      return next;
-    });
-  };
+      const next = new Set(prev)
+      next.add(id)
+      return next
+    })
+  }
 
   // Handler to unarchive an article by id
   const handleUnarchive = (id) => {
     setArchivedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
-  };
+      const next = new Set(prev)
+      next.delete(id)
+      return next
+    })
+  }
 
   // Update values when stats change
-  const [active, setActive] = useState("All");
+  const [active, setActive] = useState('All')
 
   // Reset filter to 'All' when selectedText (claim) changes
   useEffect(() => {
-    setActive("All");
-  }, [selectedText]);
+    setActive('All')
+  }, [selectedText])
   // Determine which data set to use
-  const items = phase === 0 ? searchHits : results;
+  const items = phase === 0 ? searchHits : results
   // Collect unique categories and counts using mapVerdictToLabel
   const categoryMap = items.reduce((acc, item) => {
-    let cat = item.archived ? "Archived" : mapVerdictToLabel(item.verdict);
-    cat = cat.charAt(0).toUpperCase() + cat.slice(1);
-    acc[cat] = (acc[cat] || 0) + 1;
-    return acc;
-  }, {});
+    let cat = item.archived ? 'Archived' : mapVerdictToLabel(item.verdict)
+    cat = cat.charAt(0).toUpperCase() + cat.slice(1)
+    acc[cat] = (acc[cat] || 0) + 1
+    return acc
+  }, {})
 
   // Map verdict labels for filter display only
   const verdictDisplayMap = {
-    true: "Support",
-    fake: "Refute",
-    neutral: "Neutral",
-  };
+    true: 'Support',
+    fake: 'Refute',
+    neutral: 'Neutral',
+  }
 
   // Precompute lists for each category for consistency
   const categorizedArticles = {
@@ -172,72 +184,72 @@ export default function Popup({
     Refute: [],
     Neutral: [],
     Archived: [],
-  };
+  }
   items.forEach((item, idx) => {
-    const uniqueId = getArticleId(item, idx);
-    const isArchived = archivedIds.has(uniqueId) || item.archived;
-    const itemWithId = { ...item, id: uniqueId };
+    const uniqueId = getArticleId(item, idx)
+    const isArchived = archivedIds.has(uniqueId) || item.archived
+    const itemWithId = { ...item, id: uniqueId }
     if (isArchived) {
-      categorizedArticles.Archived.push({ ...itemWithId, archived: true });
+      categorizedArticles.Archived.push({ ...itemWithId, archived: true })
     } else {
-      const verdict = mapVerdictToLabel(item.verdict);
-      const display = verdictDisplayMap[verdict] || verdict;
+      const verdict = mapVerdictToLabel(item.verdict)
+      const display = verdictDisplayMap[verdict] || verdict
       if (categorizedArticles[display]) {
-        categorizedArticles[display].push(itemWithId);
+        categorizedArticles[display].push(itemWithId)
       }
     }
-  });
+  })
   // Compute non-archived items for correct filter counts
   const nonArchivedItems = items.filter((item, idx) => {
     const uniqueId =
       item.id ||
-      `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`;
-    return !(archivedIds.has(uniqueId) || item.archived);
-  });
+      `${item.source || ''}_${item.title || ''}_${item.publish_date || ''}_${idx}`
+    return !(archivedIds.has(uniqueId) || item.archived)
+  })
 
   const filters = [
-    { label: "All", count: nonArchivedItems.length },
-    { label: "Support", count: categorizedArticles.Support.length },
-    { label: "Refute", count: categorizedArticles.Refute.length },
-    { label: "Neutral", count: categorizedArticles.Neutral.length },
-    { label: "Archived", count: categorizedArticles.Archived.length },
-  ].filter((f) => f.count > 0 || f.label === "All");
+    { label: 'All', count: nonArchivedItems.length },
+    { label: 'Support', count: categorizedArticles.Support.length },
+    { label: 'Refute', count: categorizedArticles.Refute.length },
+    { label: 'Neutral', count: categorizedArticles.Neutral.length },
+    { label: 'Archived', count: categorizedArticles.Archived.length },
+  ].filter((f) => f.count > 0 || f.label === 'All')
 
   useEffect(() => {
     if (stats) {
       const newTruthScore = Math.round(
         (((stats.truth_confidence_score || 0) + 1) / 2) * 100,
-      );
+      )
       const newBiasDivergence = Math.round(
         (((stats.bias_divergence || 0) + 1) / 2) * 100,
-      );
+      )
       const newBiasConsistency = Math.round(
         (((stats.bias_consistency || 0) + 1) / 2) * 100,
-      );
+      )
 
-      setTruthScore(newTruthScore);
-      setBiasDivergence(newBiasDivergence);
-      setBiasConsistency(newBiasConsistency);
+      setTruthScore(newTruthScore)
+      setBiasDivergence(newBiasDivergence)
+      setBiasConsistency(newBiasConsistency)
 
       // Update verdict label/colors and numeric score
-      const overallVerdictValue = stats.overall_verdict ?? 0;
-      const newVerdictLabel = mapVerdictToLabel(overallVerdictValue);
+      const overallVerdictValue = stats.overall_verdict ?? 0
+      const newVerdictLabel = mapVerdictToLabel(overallVerdictValue)
       const newOverallVerdictScore = Math.round(
         ((overallVerdictValue + 1) / 2) * 100,
-      );
+      )
 
-      setVerdictLabel(newVerdictLabel);
-      setColors(getColorClasses(newVerdictLabel, false));
-      setOverallVerdictScore(newOverallVerdictScore);
+      setVerdictLabel(newVerdictLabel)
+      setColors(getColorClasses(newVerdictLabel, false))
+      setOverallVerdictScore(newOverallVerdictScore)
     }
-  }, [stats]);
+  }, [stats])
 
   // Update colors when loading state changes
   useEffect(() => {
     if (isLoading) {
-      setColors(getColorClasses(verdictLabel, true));
+      setColors(getColorClasses(verdictLabel, true))
     }
-  }, [isLoading, verdictLabel]);
+  }, [isLoading, verdictLabel])
 
   return (
     <div className="w-full h-screen bg-white text-gray-900 flex flex-col overflow-hidden">
@@ -246,7 +258,7 @@ export default function Popup({
         className={`flex flex-col items-center justify-center p-3 space-y-0 w-full ${colors.statement}`}
       >
         <p className="text-sm font-semibold italic text-white/80 wrap-break-words text-center w-full">
-          "{selectedText || "P20 rice distributed nationwide next week."}"
+          "{selectedText || 'P20 rice distributed nationwide next week.'}"
         </p>
         <p className="text-xs font-semibold bold text-white/50">Statement</p>
       </div>
@@ -349,43 +361,45 @@ export default function Popup({
         )}
       </div>
 
-{/* Articles Area */}
-<div className={`${colors.statement} text-white flex justify-between items-center pl-2 pr-1 py-2`}>
-  <p className="font-bold text-[13px]">Supporting Articles</p>
-  
-  <button 
-    onClick={() => setIsConfigOpen(!isConfigOpen)}
-    className="!bg-transparent !border-none !p-1 !rounded-full opacity-100 hover:opacity-60 hover:bg-white/10 transition-all duration-300 ease-in-out will-change-opacity cursor-pointer flex items-center justify-center !outline-none focus:!ring-0"
-  >
-    <Settings size={17} />
-  </button>
-</div>
+      {/* Articles Area */}
+      <div
+        className={`${colors.statement} text-white flex justify-between items-center pl-2 pr-1 py-2`}
+      >
+        <p className="font-bold text-[13px]">Supporting Articles</p>
+
+        <button
+          onClick={() => setIsConfigOpen(!isConfigOpen)}
+          className="!bg-transparent !border-none !p-1 !rounded-full opacity-100 hover:opacity-60 hover:bg-white/10 transition-all duration-300 ease-in-out will-change-opacity cursor-pointer flex items-center justify-center !outline-none focus:!ring-0"
+        >
+          <Settings size={17} />
+        </button>
+      </div>
 
       {/* Filter bar outside colored area */}
       <FilterArea
         active={active}
         setActive={setActive}
-        filters={filters} 
+        filters={filters}
         bgClass={colors.statement}
       />
       {/* Scrollable article list fills remaining space */}
       <div className="flex-1 bg-white min-h-0 p-0 overflow-hidden overflow-y-auto flex flex-col gap-0">
         {(() => {
-          let list = items;
-          if (active === "Support") list = categorizedArticles.Support;
-          else if (active === "Refute") list = categorizedArticles.Refute;
-          else if (active === "Neutral") list = categorizedArticles.Neutral;
-          else if (active === "Archived") list = categorizedArticles.Archived;
-          else if (active === "All")
+          let list = items
+          if (active === 'Support') list = categorizedArticles.Support
+          else if (active === 'Refute') list = categorizedArticles.Refute
+          else if (active === 'Neutral') list = categorizedArticles.Neutral
+          else if (active === 'Archived') list = categorizedArticles.Archived
+          else if (active === 'All')
             list = items
               .map((item, idx) => {
                 const uniqueId =
                   item.id ||
-                  `${item.source || ""}_${item.title || ""}_${item.publish_date || ""}_${idx}`;
-                return { ...item, id: uniqueId };
+                  `${item.source || ''}_${item.title || ''}_${item.publish_date || ''}_${idx}`
+                return { ...item, id: uniqueId }
               })
-              .filter((item) => !(archivedIds.has(item.id) || item.archived));
-          const Card = phase === 0 ? SearchResultCard : ArticleCard;
+              .filter((item) => !(archivedIds.has(item.id) || item.archived))
+          const Card = phase === 0 ? SearchResultCard : ArticleCard
           return list.map((item, idx) => (
             <Card
               key={item.id || idx}
@@ -397,12 +411,12 @@ export default function Popup({
                     onUnarchive: item.archived ? handleUnarchive : undefined,
                   })}
             />
-          ));
+          ))
         })()}
       </div>
       {isConfigOpen && (
-        <ConfigPopup 
-          onClose={() => setIsConfigOpen(false)} 
+        <ConfigPopup
+          onClose={() => setIsConfigOpen(false)}
           colors={colors}
           maxEvidence={maxEvidence}
           includeFactChecks={includeFactChecks}
@@ -410,5 +424,5 @@ export default function Popup({
         />
       )}
     </div>
-  );
+  )
 }

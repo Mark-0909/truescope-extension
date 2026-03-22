@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { X } from 'lucide-react'
 
 export default function ConfigPopup({
   onClose,
@@ -7,25 +7,25 @@ export default function ConfigPopup({
   includeFactChecks,
   onUpdate,
 }) {
-  // Manual mapping for standard Tailwind classes to ensure we get the right hex
+  // Simplified Color Map in ConfigPopup.jsx
   const colorMap = {
-    "bg-red-900": "#7f1d1d",
-    "bg-red-500": "#ef4444",
-    "bg-green-900": "#14532d",
-    "bg-green-500": "#22c55e",
-    "bg-yellow-800": "#854d0e",
-    "bg-yellow-500": "#eab308",
-    "bg-gray-700": "#374151",
-    "bg-gray-500": "#6b7280",
-  };
+    'bg-red-900': '#7f1d1d',
+    'bg-red-500': '#ef4444',
+    'bg-green-900': '#14532d',
+    'bg-green-500': '#22c55e',
+    'bg-yellow-800': '#854d0e',
+    'bg-yellow-500': '#eab308',
+    'bg-gray-700': '#374151',
+    'bg-gray-500': '#6b7280',
+  }
 
   // Try to find a hex in the string (bg-[#...]) or use the map, fallback to indigo
-  const themeColorMatch = colors?.statement?.match(/\[#([0-9a-fA-F]{6})\]/);
+  const themeColorMatch = colors?.statement?.match(/\[#([0-9a-fA-F]{6})\]/)
   const themeHex = themeColorMatch
     ? `#${themeColorMatch[1]}`
-    : colorMap[colors?.statement] || "#6366F1";
+    : colorMap[colors?.statement] || '#6366F1'
 
-  const themeClass = colors?.statement || "!bg-[#6366F1]";
+  const themeClass = colors?.statement || '!bg-[#6366F1]'
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[100] backdrop-blur-[1px]">
@@ -38,7 +38,7 @@ export default function ConfigPopup({
           <button
             onClick={onClose}
             className="!p-1 hover:bg-gray-100 rounded-full transition-colors cursor-pointer text-gray-400 hover:text-gray-600 !outline-none focus:!ring-0 !border-none"
-            style={{ backgroundColor: "transparent" }}
+            style={{ backgroundColor: 'transparent' }}
           >
             <X size={20} strokeWidth={2.5} />
           </button>
@@ -99,12 +99,12 @@ export default function ConfigPopup({
               }
               className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer !outline-none focus:!ring-0 !border-none !p-0"
               style={{
-                backgroundColor: includeFactChecks ? themeHex : "#CBD5E1",
+                backgroundColor: includeFactChecks ? themeHex : '#CBD5E1',
               }}
             >
               <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  includeFactChecks ? "translate-x-6" : "translate-x-1"
+                  includeFactChecks ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
             </button>
@@ -112,5 +112,5 @@ export default function ConfigPopup({
         </div>
       </div>
     </div>
-  );
+  )
 }
