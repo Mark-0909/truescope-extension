@@ -322,14 +322,14 @@ export default function Popup({
       </div>
 
 {/* Articles Area */}
-<div className={`${colors.statement} text-white flex justify-between items-center px-4 py-2`}>
+<div className={`${colors.statement} text-white flex justify-between items-center pl-2 pr-1 py-2`}>
   <p className="font-bold text-[13px]">Supporting Articles</p>
   
   <button 
     onClick={() => setIsConfigOpen(!isConfigOpen)}
-    className="!bg-transparent !border-none !p-1 !rounded-full hover:bg-white/20 transition-colors cursor-pointer flex items-center justify-center"
+    className="!bg-transparent !border-none !p-1 !rounded-full opacity-100 hover:opacity-60 hover:bg-white/10 transition-all duration-300 ease-in-out will-change-opacity cursor-pointer flex items-center justify-center !outline-none focus:!ring-0"
   >
-    <Settings size={18} />
+    <Settings size={17} />
   </button>
 </div>
 
@@ -373,7 +373,10 @@ export default function Popup({
         })()}
       </div>
       {isConfigOpen && (
-        <ConfigPopup onClose={() => setIsConfigOpen(false)} />
+        <ConfigPopup 
+          onClose={() => setIsConfigOpen(false)} 
+          colors={colors}
+        />
       )}
     </div>
   );
