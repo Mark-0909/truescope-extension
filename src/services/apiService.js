@@ -26,9 +26,12 @@ export const verifyClaim = async (claim, config, callbacks = {}) => {
     callbacks.onWebSocketCreated?.(ws)
 
     ws.onopen = () => {
-      console.log('WebSocket connected, sending claim:', claim)
-      ws.send(JSON.stringify({ claim: claim }))
-      ws.send(JSON.stringify({ config: config }))
+      console.log(
+        'WebSocket connected, sending claim and config:',
+        claim,
+        config,
+      )
+      ws.send(JSON.stringify({ claim: claim, config: config }))
     }
 
     ws.onmessage = (event) => {

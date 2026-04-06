@@ -32,15 +32,21 @@ function App() {
       if (result.config) {
         setConfig(result.config)
       } else {
-        chrome.storage.local.set(config)
+        chrome.storage.local.set({ config })
       }
     })
 
     // Listen for storage changes (when user selects new text while panel is open)
     const handleStorageChange = (changes, areaName) => {
-      if (areaName === 'local' && changes.selectedText) {
-        console.log('New text selected:', changes.selectedText.newValue)
-        setSelectedText(changes.selectedText.newValue)
+      if (areaName === 'local') {
+        if (changes.selectedText) {
+          console.log('New text selected:', changes.selectedText.newValue)
+          setSelectedText(changes.selectedText.newValue)
+        }
+        if (changes.config) {
+          console.log('Config update detected:', changes.config.newValue)
+          setConfig(changes.config.newValue)
+        }
       }
     }
 
