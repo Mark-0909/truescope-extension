@@ -11,6 +11,7 @@ import { getItemsFromFilter, mapVerdictToLabel } from '../utils/scripts.js'
 import SearchResultCard from './SearchResultCard.jsx'
 import { Settings } from 'lucide-react'
 import ConfigPopup from './ConfigPopup.jsx'
+import Skeleton from './Skeleton.js'
 
 const getColorClasses = (verdictLabel, isAnalyzing = false) => {
   // Use neutral gray while loading
@@ -73,6 +74,9 @@ export default function Popup({
   results,
   stats,
   isLoading,
+  archivedIds,
+  setArchivedIds,
+  isStatsLoading,
 }) {
   const [verdictLabel, setVerdictLabel] = useState(
     mapVerdictToLabel(overallVerdict),
@@ -84,7 +88,6 @@ export default function Popup({
   const [biasDivergence, setBiasDivergence] = useState(0)
   const [biasConsistency, setBiasConsistency] = useState(0)
   const [overallVerdictScore, setOverallVerdictScore] = useState(0)
-  const [archivedIds, setArchivedIds] = useState(new Set())
   const [isConfigOpen, setIsConfigOpen] = useState(false)
   const [active, setActive] = useState('all')
   const [items, setItems] = useState(searchHits)
@@ -99,14 +102,6 @@ export default function Popup({
     archived: [],
   })
   const [displayItems, setDisplayItems] = useState([])
-
-  // Helper to get a unique id for an article
-  function getArticleId(item, idx) {
-    return (
-      item.id ||
-      `${item.source || ''}_${item.title || ''}_${item.publish_date || ''}_${idx}`
-    )
-  }
 
   // Handler to archive an article by id
   const handleArchive = (id) => {
@@ -164,22 +159,20 @@ export default function Popup({
     }
 
     items.forEach((item, idx) => {
-      const uniqueId = getArticleId(item, idx)
-      const isArchived = archivedIds.has(uniqueId) || item.archived
-      const itemWithId = { ...item, id: uniqueId }
+      const isArchived = archivedIds.has(item.doc_id) || item.archived
 
       if (isArchived) {
-        grouped.archived.push({ ...itemWithId, archived: true })
+        grouped.archived.push({ ...item, archived: true })
       } else if (item.is_aggregated) {
-        grouped.relevant.push(itemWithId)
+        grouped.relevant.push(item)
       } else {
         const verdict = mapVerdictToLabel(item.verdict)
 
         if (grouped.supplementary[verdict]) {
-          grouped.supplementary[verdict].push(itemWithId)
+          grouped.supplementary[verdict].push(item)
         }
 
-        grouped.supplementary.all.push(itemWithId)
+        grouped.supplementary.all.push(item)
       }
     })
 
@@ -256,7 +249,11 @@ export default function Popup({
                 <span
                   className={`font-bold text-3xl text-black mb-0 ${colors.textColor}`}
                 >
-                  {overallVerdictScore}%
+                  {isStatsLoading ? (
+                    <Skeleton width="3.5rem" height="2.5rem" />
+                  ) : (
+                    `${overallVerdictScore}%`
+                  )}
                 </span>
                 <div className="flex items-center gap-1 text-[15px] font-semibold text-black/70">
                   <span>Overall Verdict</span>
@@ -271,7 +268,11 @@ export default function Popup({
                 {/* Truth Confidence */}
                 <div className="flex flex-col items-center mt-0 flex-1">
                   <span className="font-semibold text-[22px] text-black mb-1">
-                    {truthScore}%
+                    {isStatsLoading ? (
+                      <Skeleton width="2.5rem" height="2rem" />
+                    ) : (
+                      `${truthScore}%`
+                    )}
                   </span>
                   <div className="relative flex flex-row items-center gap-1 text-[13px] text-black leading-tight">
                     <span>Truth</span>
@@ -289,7 +290,11 @@ export default function Popup({
                 {/* Bias Divergence */}
                 <div className="flex flex-col items-center mt-0 flex-1">
                   <span className="font-semibold text-[22px] text-black mb-1">
-                    {biasDivergence}%
+                    {isStatsLoading ? (
+                      <Skeleton width="2.5rem" height="2rem" />
+                    ) : (
+                      `${biasDivergence}%`
+                    )}
                   </span>
                   <div className="relative flex flex-row items-center gap-1 text-[13px] text-black leading-tight">
                     <span>Bias</span>
@@ -307,7 +312,11 @@ export default function Popup({
                 {/* Bias Consistency */}
                 <div className="flex flex-col items-center mt-0 flex-1">
                   <span className="font-semibold text-[22px] text-black mb-1">
-                    {biasConsistency}%
+                    {isStatsLoading ? (
+                      <Skeleton width="2.5rem" height="2rem" />
+                    ) : (
+                      `${biasConsistency}%`
+                    )}
                   </span>
                   <div className="relative flex flex-row items-center gap-1 text-[13px] text-black leading-tight">
                     <span>Bias</span>
@@ -364,10 +373,10 @@ export default function Popup({
           const Card = phase === 0 ? SearchResultCard : ArticleCard
           return displayItems.map((item, idx) =>
             phase === 0 ? (
-              <Card key={item.id || idx} searchHit={item} />
+              <Card key={item.doc_id || idx} searchHit={item} />
             ) : (
               <Card
-                key={item.id || idx}
+                key={item.doc_id || idx}
                 score={item}
                 groupLength={displayItems.length}
                 onArchive={!item.archived ? handleArchive : undefined}

@@ -64,3 +64,9 @@ export const getItemsFromFilter = (filter, groupedItems) => {
 
   return newDisplayItems
 }
+
+export const getNonArchivedEvidences = (evidences, archivedIds) => {
+  return evidences.filter(
+    (e) => e.is_aggregated === true && !archivedIds.has(e.doc_id),
+  )
+}

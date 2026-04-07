@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Popup from './components/Popup.jsx'
-import { verifyClaim } from './services/apiService.js'
+import { calculateStats, verifyClaim } from './services/apiService.js'
+import { getNonArchivedEvidences } from './utils/scripts.js'
 
 function App() {
   const [overallVerdict, setOverallVerdict] = useState(null)
@@ -14,6 +15,8 @@ function App() {
     maxEvidence: 3,
     useNonFactcheck: true,
   })
+  const [isStatsLoading, setIsStatsLoading] = useState(false)
+  const [archivedIds, setArchivedIds] = useState(new Set())
   const wsRef = useRef(null)
 
   // Phase 0 = Still searching for relevant articles. Displays initial search results.
@@ -147,6 +150,23 @@ function App() {
     }
   }, [selectedText])
 
+  useEffect(() => {
+    if (phase !== 2) return
+
+    setIsStatsLoading(true)
+
+    const nonArchivedEvidences = getNonArchivedEvidences(results, archivedIds)
+
+    calculateStats(nonArchivedEvidences)
+      .then((res) => {
+        setStats(res)
+        setOverallVerdict(res.overall_verdict)
+      })
+      .finally(() => {
+        setIsStatsLoading(false)
+      })
+  }, [archivedIds])
+
   if (error) {
     console.error('Error occurred:', error) // Log error to console
     return (
@@ -168,6 +188,9 @@ function App() {
         results={results}
         stats={stats}
         isLoading={isLoading}
+        archivedIds={archivedIds}
+        setArchivedIds={setArchivedIds}
+        isStatsLoading={isStatsLoading}
       />
     )
   }

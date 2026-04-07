@@ -94,3 +94,19 @@ export const verifyClaim = async (claim, config, callbacks = {}) => {
     }, 180000)
   })
 }
+
+export const calculateStats = async (evidences) => {
+  const baseUrl = import.meta.env.VITE_API_URL
+  const url = `${baseUrl}/v1/verify/calculate`
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(evidences),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to calculate stats')
+  }
+  return await response.json()
+}
