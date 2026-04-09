@@ -1,12 +1,8 @@
 import { X } from 'lucide-react'
+import { useEffect } from 'react'
+import { useState } from 'react'
 
-export default function ConfigPopup({
-  onClose,
-  colors,
-  maxEvidence,
-  includeFactChecks,
-  onUpdate,
-}) {
+export default function ConfigPopup({ onClose, colors }) {
   // Simplified Color Map in ConfigPopup.jsx
   const colorMap = {
     'bg-red-900': '#7f1d1d',
@@ -25,16 +21,62 @@ export default function ConfigPopup({
     ? `#${themeColorMatch[1]}`
     : colorMap[colors?.statement] || '#6366F1'
 
-  const themeClass = colors?.statement || '!bg-[#6366F1]'
+  const [maxEvidence, setMaxEvidence] = useState(3)
+  const [useNonFactcheck, setUseNonFactcheck] = useState(true)
+
+  useEffect(() => {
+    if (
+      typeof chrome !== 'undefined' &&
+      chrome.storage &&
+      chrome.storage.local
+    ) {
+      chrome.storage.local.get(['config'], (result) => {
+        if (result.config !== undefined) {
+          console.log('CONFIG INIT', result.config)
+          if (result.config.maxEvidence !== undefined) {
+            setMaxEvidence(result.config.maxEvidence)
+          }
+          if (result.config.useNonFactcheck !== undefined) {
+            setUseNonFactcheck(result.config.useNonFactcheck)
+          }
+        }
+      })
+    }
+  }, [])
+
+  const handleUpdate = (newSettings) => {
+    let currMaxEvidence = maxEvidence
+    let currUseNonFactcheck = useNonFactcheck
+
+    if (newSettings.maxEvidence !== undefined) {
+      currMaxEvidence = newSettings.maxEvidence
+      setMaxEvidence(newSettings.maxEvidence)
+    }
+    if (newSettings.useNonFactcheck !== undefined) {
+      currUseNonFactcheck = newSettings.useNonFactcheck
+      setUseNonFactcheck(newSettings.useNonFactcheck)
+    }
+
+    const config = {
+      maxEvidence: currMaxEvidence,
+      useNonFactcheck: currUseNonFactcheck,
+    }
+
+    if (
+      typeof chrome !== 'undefined' &&
+      chrome.storage &&
+      chrome.storage.local
+    ) {
+      chrome.storage.local.set({ config })
+    }
+  }
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[100] backdrop-blur-[1px]">
       <div className="bg-white rounded-2xl shadow-2xl w-[350px] overflow-hidden flex flex-col pt-0 border border-gray-100">
         {/* Header */}
         <div className="flex justify-between items-center pl-6 pr-3 py-3">
-          <h2 className="text-[18px] font-bold text-[#1E293B]">
-            Display Settings
-          </h2>
+          <h2 className="text-[18px] font-bold text-[#1E293B]">Settings</h2>
           <button
             onClick={onClose}
             className="!p-1 hover:bg-gray-100 rounded-full transition-colors cursor-pointer text-gray-400 hover:text-gray-600 !outline-none focus:!ring-0 !border-none"
@@ -49,7 +91,7 @@ export default function ConfigPopup({
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-[15px] font-semibold text-[#334155] opacity-80">
-                Max Evidence to Show
+                Max Evidences
               </span>
               <span
                 className="text-[18px] font-bold"
@@ -66,7 +108,7 @@ export default function ConfigPopup({
                 max="10"
                 value={maxEvidence}
                 onChange={(e) =>
-                  onUpdate({ maxEvidence: parseInt(e.target.value) })
+                  handleUpdate({ maxEvidence: parseInt(e.target.value) })
                 }
                 className="w-full h-1.5 bg-[#E5E7EB] rounded-lg appearance-none cursor-pointer"
                 style={{ accentColor: themeHex }}
@@ -86,25 +128,26 @@ export default function ConfigPopup({
           <div className="bg-[#F8FAFC]/90 rounded-xl  flex items-center justify-between border border-gray-50 p-2">
             <div className="space-y-0.5">
               <p className="text-[15px] font-bold text-[#334155]">
-                Include Fact-Check Articles
+                Allow Non-Factcheck Articles
               </p>
               <p className="text-[12px] text-gray-500 font-medium">
-                Show articles from fact-checking sources
+                Allow Non-Factcheck Articles to be used for the Overall Verdict
+                scoring
               </p>
             </div>
 
             <button
               onClick={() =>
-                onUpdate({ includeFactChecks: !includeFactChecks })
+                handleUpdate({ useNonFactcheck: !useNonFactcheck })
               }
               className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer !outline-none focus:!ring-0 !border-none !p-0"
               style={{
-                backgroundColor: includeFactChecks ? themeHex : '#CBD5E1',
+                backgroundColor: useNonFactcheck ? themeHex : '#CBD5E1',
               }}
             >
               <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  includeFactChecks ? 'translate-x-6' : 'translate-x-1'
+                  useNonFactcheck ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
             </button>

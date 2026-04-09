@@ -1,57 +1,65 @@
-import { useState } from "react";
-import InfoCard from "./InfoCard.jsx";
+import { useState } from 'react'
+import InfoCard from './InfoCard.jsx'
 import {
   formatDate,
   formatSource,
   mapVerdictToLabel,
   verdictToTruthScore,
-} from "../utils/scripts.js";
-import { LoaderCircle } from "lucide-react";
-import { Archive, Undo2 } from "lucide-react";
+} from '../utils/scripts.js'
+import { LoaderCircle } from 'lucide-react'
+import { Archive, Undo2 } from 'lucide-react'
+import { useEffect } from 'react'
 
-export default function ArticleCard({ score, onArchive, onUnarchive }) {
-  const verdictLabel = mapVerdictToLabel(score.verdict);
-  const truthScore = verdictToTruthScore(score.verdict);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isFading, setIsFading] = useState(false);
+export default function ArticleCard({
+  score,
+  groupLength,
+  onArchive,
+  onUnarchive,
+}) {
+  const verdictLabel = mapVerdictToLabel(score.verdict)
+  const truthScore = verdictToTruthScore(score.verdict)
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const [showArchive, setShowArchive] = useState(
+    onArchive && !score.archived && isHovered && groupLength > 1,
+  )
+  const [showUnarchive, setShowUnarchive] = useState(
+    onUnarchive && score.archived && isHovered,
+  )
 
   const handleUrlClick = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    chrome.tabs.create({ url: score.url });
-  };
+    e.stopPropagation()
+    e.preventDefault()
+    chrome.tabs.create({ url: score.url })
+  }
 
-  // Show archive/unarchive button only if hovered
-  const showArchive = onArchive && !score.archived && isHovered;
-  const showUnarchive = onUnarchive && score.archived && isHovered;
+  // Only allow archive if there is more than 1 evidence in the current group
+  // Show archive/unarchive button only if hovered and allowed
+  useEffect(() => {
+    setShowArchive(onArchive && !score.archived && isHovered)
+    setShowUnarchive(onUnarchive && score.archived && isHovered)
+  }, [onArchive, onUnarchive, score, isHovered, groupLength])
 
-  // Fade-out and then archive
+  // Fade-out using Tailwind only, keep logic separate
   const handleArchiveClick = (e) => {
-    e.stopPropagation();
-    setIsFading(true);
-    setTimeout(() => {
-      onArchive(score.id);
-    }, 300);
-  };
+    e.stopPropagation()
+    onArchive(score.doc_id)
+  }
   // Fade-out and then unarchive
   const handleUnarchiveClick = (e) => {
-    e.stopPropagation();
-    setIsFading(true);
-    setTimeout(() => {
-      onUnarchive(score.id);
-    }, 300);
-  };
+    e.stopPropagation()
+    onUnarchive(score.doc_id)
+  }
 
   return (
     <div
-      className={`w-full border px-3 py-2 cursor-pointer transition-all duration-300 ${
-        verdictLabel === "true"
-          ? "border-l-4 border-l-green-500 hover:bg-green-100/60"
-          : verdictLabel === "fake"
-            ? "border-l-4 border-l-red-500 hover:bg-red-100/60"
-            : "border-l-4 border-l-yellow-500 hover:bg-yellow-100/60"
-      } ${isFading ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+      className={`w-full border px-3 py-2 cursor-pointer transition-opacity duration-300 opacity-100 ${
+        verdictLabel === 'true'
+          ? 'border-l-4 border-l-green-500 hover:bg-green-100/60'
+          : verdictLabel === 'fake'
+            ? 'border-l-4 border-l-red-500 hover:bg-red-100/60'
+            : 'border-l-4 border-l-yellow-500 hover:bg-yellow-100/60'
+      }`}
       onClick={() => setIsExpanded(!isExpanded)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -60,60 +68,65 @@ export default function ArticleCard({ score, onArchive, onUnarchive }) {
       <div className="flex flex-row items-center justify-between h-auto gap-2">
         <div className="flex-1 min-w-0">
           <p
-            className={`text-sm font-bold text-gray-800 transition-all duration-300 ease-in-out ${!isExpanded ? "line-clamp-3" : ""}`}
+            className={`text-sm font-bold text-gray-800 transition-all duration-300 ease-in-out ${!isExpanded ? 'line-clamp-3' : ''}`}
           >
-            {formatSource(score.source)}:{" "}
+            {formatSource(score.source)}:{' '}
             <span className="font-semibold overflow-ellipsis">
               "{score.title}"
             </span>
           </p>
         </div>
         {/* Archive/Unarchive Button */}
-        <div
-          className="flex items-center justify-end"
-          style={{ width: 40, minWidth: 40 }}
-        >
-          {showArchive && !showUnarchive && (
-            <button
-              className="p-1 bg-transparent border-none shadow-none outline-none ring-0 focus:outline-none focus:ring-0 active:outline-none active:ring-0 text-gray-500 hover:text-red-600 transition-all duration-300 ease-in-out opacity-100 translate-x-0 pointer-events-auto"
-              style={{
-                background: "none",
-                border: "none",
-                outline: "none",
-                boxShadow: "none",
-              }}
-              onClick={handleArchiveClick}
-              title="Archive this article"
-              aria-label="Archive"
-              tabIndex={0}
-            >
-              <Archive size={18} />
-            </button>
-          )}
-          {showUnarchive && !showArchive && (
-            <button
-              className="p-1 bg-transparent border-none shadow-none outline-none ring-0 focus:outline-none focus:ring-0 active:outline-none active:ring-0 text-gray-500 hover:text-green-600 transition-all duration-300 ease-in-out opacity-100 translate-x-0 pointer-events-auto"
-              style={{
-                background: "none",
-                border: "none",
-                outline: "none",
-                boxShadow: "none",
-              }}
-              onClick={handleUnarchiveClick}
-              title="Unarchive this article"
-              aria-label="Unarchive"
-              tabIndex={0}
-            >
-              <Undo2 size={18} />
-            </button>
-          )}
-        </div>
+        {score.is_aggregated && (
+          <div
+            className="flex items-center justify-end"
+            style={{ width: 40, minWidth: 40 }}
+          >
+            {groupLength > 1 && showArchive && !showUnarchive && (
+              <button
+                className="p-1 bg-transparent border-none shadow-none outline-none ring-0 focus:outline-none focus:ring-0 active:outline-none active:ring-0 text-gray-500 hover:text-red-600 transition-all duration-300 ease-in-out opacity-100 translate-x-0 pointer-events-auto"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  outline: 'none',
+                  boxShadow: 'none',
+                  pointerEvents: 'auto',
+                  opacity: 1,
+                }}
+                onClick={handleArchiveClick}
+                title="Archive this article"
+                aria-label="Archive"
+                tabIndex={0}
+              >
+                <Archive size={18} />
+              </button>
+            )}
+            {showUnarchive && !showArchive && (
+              <button
+                className="p-1 bg-transparent border-none shadow-none outline-none ring-0 focus:outline-none focus:ring-0 active:outline-none active:ring-0 text-gray-500 hover:text-green-600 transition-all duration-300 ease-in-out opacity-100 translate-x-0 pointer-events-auto"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  outline: 'none',
+                  boxShadow: 'none',
+                }}
+                onClick={handleUnarchiveClick}
+                title="Unarchive this article"
+                aria-label="Unarchive"
+                tabIndex={0}
+              >
+                <Undo2 size={18} />
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Accordion Chevron */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
-          className={`size-5 text-gray-600 transition-transform duration-300 shrink-0 ${isExpanded ? "rotate-180" : ""}`}
+          className={`size-5 text-gray-600 transition-transform duration-300 shrink-0 ${isExpanded ? 'rotate-180' : ''}`}
         >
           <path
             fillRule="evenodd"
@@ -125,13 +138,13 @@ export default function ArticleCard({ score, onArchive, onUnarchive }) {
 
       <div
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         {/*Remarks Section*/}
         <div className="mb-3 mt-3 flex flex-row gap-4">
           <div className="flex flex-col items-center gap-0">
-            {verdictLabel === "true" ? (
+            {verdictLabel === 'true' ? (
               <>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -149,7 +162,7 @@ export default function ArticleCard({ score, onArchive, onUnarchive }) {
                   Support
                 </p>
               </>
-            ) : verdictLabel === "fake" ? (
+            ) : verdictLabel === 'fake' ? (
               <>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -189,20 +202,20 @@ export default function ArticleCard({ score, onArchive, onUnarchive }) {
           </div>
           <div>
             <p className="text-gray-700 text-sm">
-              <span className="font-bold">Published Date:</span>{" "}
+              <span className="font-bold">Published Date:</span>{' '}
               <span>{formatDate(score.publish_date)}</span>
             </p>
 
             <p
-              className={`text-sm text-gray-700 ${score.remarks ? "" : "flex items-center gap-1"}`}
+              className={`text-sm text-gray-700 ${score.remarks ? '' : 'flex items-center gap-1'}`}
             >
-              <span className="font-bold">Remarks:</span>{" "}
+              <span className="font-bold">Remarks:</span>{' '}
               {score.remarks ? (
                 score.remarks
               ) : (
                 <LoaderCircle
                   className="animate-spin"
-                  style={{ animationDuration: "4s" }}
+                  style={{ animationDuration: '4s' }}
                 />
               )}
             </p>
@@ -252,5 +265,5 @@ export default function ArticleCard({ score, onArchive, onUnarchive }) {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -7,10 +7,11 @@ import Spinner from './Spinner.jsx'
 import TruthIcon from '../assets/Truth_Icon.png'
 import FakeIcon from '../assets/Fake_Icon.png'
 import NeedsContextIcon from '../assets/Needs_Context_Icon.png'
-import { mapVerdictToLabel } from '../utils/scripts.js'
+import { getItemsFromFilter, mapVerdictToLabel } from '../utils/scripts.js'
 import SearchResultCard from './SearchResultCard.jsx'
 import { Settings } from 'lucide-react'
 import ConfigPopup from './ConfigPopup.jsx'
+import Skeleton from './Skeleton.js'
 
 const getColorClasses = (verdictLabel, isAnalyzing = false) => {
   // Use neutral gray while loading
@@ -73,6 +74,9 @@ export default function Popup({
   results,
   stats,
   isLoading,
+  archivedIds,
+  setArchivedIds,
+  isStatsLoading,
 }) {
   const [verdictLabel, setVerdictLabel] = useState(
     mapVerdictToLabel(overallVerdict),
@@ -83,58 +87,21 @@ export default function Popup({
   const [truthScore, setTruthScore] = useState(0)
   const [biasDivergence, setBiasDivergence] = useState(0)
   const [biasConsistency, setBiasConsistency] = useState(0)
-  const [finalVerdictScore, setFinalVerdictScore] = useState(0)
   const [overallVerdictScore, setOverallVerdictScore] = useState(0)
-  const [archivedIds, setArchivedIds] = useState(new Set())
   const [isConfigOpen, setIsConfigOpen] = useState(false)
-
-  // Settings defaults
-  const [maxEvidence, setMaxEvidence] = useState(5)
-  const [includeFactChecks, setIncludeFactChecks] = useState(true)
-
-  // Load settings from storage
-  useEffect(() => {
-    if (
-      typeof chrome !== 'undefined' &&
-      chrome.storage &&
-      chrome.storage.local
-    ) {
-      chrome.storage.local.get(
-        ['maxEvidence', 'includeFactChecks'],
-        (result) => {
-          if (result.maxEvidence !== undefined)
-            setMaxEvidence(result.maxEvidence)
-          if (result.includeFactChecks !== undefined)
-            setIncludeFactChecks(result.includeFactChecks)
-        },
-      )
-    }
-  }, [])
-
-  const handleUpdateSettings = (newSettings) => {
-    if (newSettings.maxEvidence !== undefined) {
-      setMaxEvidence(newSettings.maxEvidence)
-    }
-    if (newSettings.includeFactChecks !== undefined) {
-      setIncludeFactChecks(newSettings.includeFactChecks)
-    }
-
-    if (
-      typeof chrome !== 'undefined' &&
-      chrome.storage &&
-      chrome.storage.local
-    ) {
-      chrome.storage.local.set(newSettings)
-    }
-  }
-
-  // Helper to get a unique id for an article
-  function getArticleId(item, idx) {
-    return (
-      item.id ||
-      `${item.source || ''}_${item.title || ''}_${item.publish_date || ''}_${idx}`
-    )
-  }
+  const [active, setActive] = useState('all')
+  const [items, setItems] = useState(searchHits)
+  const [groupedItems, setGroupedItems] = useState({
+    relevant: [],
+    supplementary: {
+      all: [],
+      true: [],
+      fake: [],
+      neutral: [],
+    },
+    archived: [],
+  })
+  const [displayItems, setDisplayItems] = useState([])
 
   // Handler to archive an article by id
   const handleArchive = (id) => {
@@ -150,70 +117,71 @@ export default function Popup({
     setArchivedIds((prev) => {
       const next = new Set(prev)
       next.delete(id)
+      // Compute what the archived count will be after this operation
+      const archivedCount =
+        getItemsFromFilter('archived', groupedItems).length - 1
+      if (archivedCount <= 0) {
+        setActive('relevant')
+      }
       return next
     })
   }
 
-  // Update values when stats change
-  const [active, setActive] = useState('All')
-
   // Reset filter to 'All' when selectedText (claim) changes
   useEffect(() => {
-    setActive('All')
+    setActive('all')
   }, [selectedText])
-  // Determine which data set to use
-  const items = phase === 0 ? searchHits : results
-  // Collect unique categories and counts using mapVerdictToLabel
-  const categoryMap = items.reduce((acc, item) => {
-    let cat = item.archived ? 'Archived' : mapVerdictToLabel(item.verdict)
-    cat = cat.charAt(0).toUpperCase() + cat.slice(1)
-    acc[cat] = (acc[cat] || 0) + 1
-    return acc
-  }, {})
 
-  // Map verdict labels for filter display only
-  const verdictDisplayMap = {
-    true: 'Support',
-    fake: 'Refute',
-    neutral: 'Neutral',
-  }
-
-  // Precompute lists for each category for consistency
-  const categorizedArticles = {
-    Support: [],
-    Refute: [],
-    Neutral: [],
-    Archived: [],
-  }
-  items.forEach((item, idx) => {
-    const uniqueId = getArticleId(item, idx)
-    const isArchived = archivedIds.has(uniqueId) || item.archived
-    const itemWithId = { ...item, id: uniqueId }
-    if (isArchived) {
-      categorizedArticles.Archived.push({ ...itemWithId, archived: true })
+  useEffect(() => {
+    if (phase === 0) {
+      setItems(searchHits)
     } else {
-      const verdict = mapVerdictToLabel(item.verdict)
-      const display = verdictDisplayMap[verdict] || verdict
-      if (categorizedArticles[display]) {
-        categorizedArticles[display].push(itemWithId)
-      }
+      setItems(results)
     }
-  })
-  // Compute non-archived items for correct filter counts
-  const nonArchivedItems = items.filter((item, idx) => {
-    const uniqueId =
-      item.id ||
-      `${item.source || ''}_${item.title || ''}_${item.publish_date || ''}_${idx}`
-    return !(archivedIds.has(uniqueId) || item.archived)
-  })
+  }, [searchHits, results, phase])
 
-  const filters = [
-    { label: 'All', count: nonArchivedItems.length },
-    { label: 'Support', count: categorizedArticles.Support.length },
-    { label: 'Refute', count: categorizedArticles.Refute.length },
-    { label: 'Neutral', count: categorizedArticles.Neutral.length },
-    { label: 'Archived', count: categorizedArticles.Archived.length },
-  ].filter((f) => f.count > 0 || f.label === 'All')
+  useEffect(() => {
+    if (phase === 2) {
+      setActive('relevant')
+    }
+  }, [phase])
+
+  useEffect(() => {
+    const grouped = {
+      relevant: [],
+      supplementary: {
+        all: [],
+        true: [],
+        fake: [],
+        neutral: [],
+      },
+      archived: [],
+    }
+
+    items.forEach((item, idx) => {
+      const isArchived = archivedIds.has(item.doc_id) || item.archived
+
+      if (isArchived) {
+        grouped.archived.push({ ...item, archived: true })
+      } else if (item.is_aggregated) {
+        grouped.relevant.push(item)
+      } else {
+        const verdict = mapVerdictToLabel(item.verdict)
+
+        if (grouped.supplementary[verdict]) {
+          grouped.supplementary[verdict].push(item)
+        }
+
+        grouped.supplementary.all.push(item)
+      }
+    })
+
+    setGroupedItems(grouped)
+  }, [items, archivedIds])
+
+  useEffect(() => {
+    setDisplayItems(getItemsFromFilter(active, groupedItems))
+  }, [active, groupedItems])
 
   useEffect(() => {
     if (stats) {
@@ -281,7 +249,11 @@ export default function Popup({
                 <span
                   className={`font-bold text-3xl text-black mb-0 ${colors.textColor}`}
                 >
-                  {overallVerdictScore}%
+                  {isStatsLoading ? (
+                    <Skeleton width="3.5rem" height="2.5rem" />
+                  ) : (
+                    `${overallVerdictScore}%`
+                  )}
                 </span>
                 <div className="flex items-center gap-1 text-[15px] font-semibold text-black/70">
                   <span>Overall Verdict</span>
@@ -296,7 +268,11 @@ export default function Popup({
                 {/* Truth Confidence */}
                 <div className="flex flex-col items-center mt-0 flex-1">
                   <span className="font-semibold text-[22px] text-black mb-1">
-                    {truthScore}%
+                    {isStatsLoading ? (
+                      <Skeleton width="2.5rem" height="2rem" />
+                    ) : (
+                      `${truthScore}%`
+                    )}
                   </span>
                   <div className="relative flex flex-row items-center gap-1 text-[13px] text-black leading-tight">
                     <span>Truth</span>
@@ -314,7 +290,11 @@ export default function Popup({
                 {/* Bias Divergence */}
                 <div className="flex flex-col items-center mt-0 flex-1">
                   <span className="font-semibold text-[22px] text-black mb-1">
-                    {biasDivergence}%
+                    {isStatsLoading ? (
+                      <Skeleton width="2.5rem" height="2rem" />
+                    ) : (
+                      `${biasDivergence}%`
+                    )}
                   </span>
                   <div className="relative flex flex-row items-center gap-1 text-[13px] text-black leading-tight">
                     <span>Bias</span>
@@ -332,7 +312,11 @@ export default function Popup({
                 {/* Bias Consistency */}
                 <div className="flex flex-col items-center mt-0 flex-1">
                   <span className="font-semibold text-[22px] text-black mb-1">
-                    {biasConsistency}%
+                    {isStatsLoading ? (
+                      <Skeleton width="2.5rem" height="2rem" />
+                    ) : (
+                      `${biasConsistency}%`
+                    )}
                   </span>
                   <div className="relative flex flex-row items-center gap-1 text-[13px] text-black leading-tight">
                     <span>Bias</span>
@@ -379,49 +363,31 @@ export default function Popup({
       <FilterArea
         active={active}
         setActive={setActive}
-        filters={filters}
+        groupedItems={groupedItems}
+        phase={phase}
         bgClass={colors.statement}
       />
       {/* Scrollable article list fills remaining space */}
       <div className="flex-1 bg-white min-h-0 p-0 overflow-hidden overflow-y-auto flex flex-col gap-0">
         {(() => {
-          let list = items
-          if (active === 'Support') list = categorizedArticles.Support
-          else if (active === 'Refute') list = categorizedArticles.Refute
-          else if (active === 'Neutral') list = categorizedArticles.Neutral
-          else if (active === 'Archived') list = categorizedArticles.Archived
-          else if (active === 'All')
-            list = items
-              .map((item, idx) => {
-                const uniqueId =
-                  item.id ||
-                  `${item.source || ''}_${item.title || ''}_${item.publish_date || ''}_${idx}`
-                return { ...item, id: uniqueId }
-              })
-              .filter((item) => !(archivedIds.has(item.id) || item.archived))
           const Card = phase === 0 ? SearchResultCard : ArticleCard
-          return list.map((item, idx) => (
-            <Card
-              key={item.id || idx}
-              {...(phase === 0
-                ? { searchHit: item }
-                : {
-                    score: item,
-                    onArchive: !item.archived ? handleArchive : undefined,
-                    onUnarchive: item.archived ? handleUnarchive : undefined,
-                  })}
-            />
-          ))
+          return displayItems.map((item, idx) =>
+            phase === 0 ? (
+              <Card key={item.doc_id || idx} searchHit={item} />
+            ) : (
+              <Card
+                key={item.doc_id || idx}
+                score={item}
+                groupLength={displayItems.length}
+                onArchive={!item.archived ? handleArchive : undefined}
+                onUnarchive={item.archived ? handleUnarchive : undefined}
+              />
+            ),
+          )
         })()}
       </div>
       {isConfigOpen && (
-        <ConfigPopup
-          onClose={() => setIsConfigOpen(false)}
-          colors={colors}
-          maxEvidence={maxEvidence}
-          includeFactChecks={includeFactChecks}
-          onUpdate={handleUpdateSettings}
-        />
+        <ConfigPopup onClose={() => setIsConfigOpen(false)} colors={colors} />
       )}
     </div>
   )
