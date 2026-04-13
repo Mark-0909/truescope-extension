@@ -85,6 +85,7 @@ function App() {
       bias_consistency: 0,
       total_processed: 0,
     })
+    setArchivedIds(new Set())
 
     verifyClaim(selectedText, config, {
       onSearchHit: (hits) => {
