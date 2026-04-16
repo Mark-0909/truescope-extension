@@ -3,7 +3,6 @@ import { useEffect } from 'react'
 import { useState } from 'react'
 
 export default function ConfigPopup({ onClose, colors }) {
-  // Simplified Color Map in ConfigPopup.jsx
   const colorMap = {
     'bg-red-900': '#7f1d1d',
     'bg-red-500': '#ef4444',
@@ -15,7 +14,6 @@ export default function ConfigPopup({ onClose, colors }) {
     'bg-gray-500': '#6b7280',
   }
 
-  // Try to find a hex in the string (bg-[#...]) or use the map, fallback to indigo
   const themeColorMatch = colors?.statement?.match(/\[#([0-9a-fA-F]{6})\]/)
   const themeHex = themeColorMatch
     ? `#${themeColorMatch[1]}`
@@ -32,7 +30,6 @@ export default function ConfigPopup({ onClose, colors }) {
     ) {
       chrome.storage.local.get(['config'], (result) => {
         if (result.config !== undefined) {
-          console.log('CONFIG INIT', result.config)
           if (result.config.maxEvidence !== undefined) {
             setMaxEvidence(result.config.maxEvidence)
           }
@@ -72,14 +69,14 @@ export default function ConfigPopup({ onClose, colors }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[100] backdrop-blur-[1px]">
-      <div className="bg-white rounded-2xl shadow-2xl w-[350px] overflow-hidden flex flex-col pt-0 border border-gray-100">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[100] backdrop-blur-[1px] animate-in fade-in">
+      <div className="bg-white rounded-2xl shadow-2xl w-[350px] overflow-hidden flex flex-col pt-0 border border-gray-100 animate-in fade-in zoom-in duration-300">
         {/* Header */}
-        <div className="flex justify-between items-center pl-6 pr-3 py-3">
-          <h2 className="text-[18px] font-bold text-[#1E293B]">Settings</h2>
+        <div className="flex justify-between items-center pl-6 pr-3 py-2.5 border-b border-gray-50/50">
+          <h2 className="text-[17px] font-bold text-[#1E293B]">Settings</h2>
           <button
             onClick={onClose}
-            className="!p-1 hover:bg-gray-100 rounded-full transition-colors cursor-pointer text-gray-400 hover:text-gray-600 !outline-none focus:!ring-0 !border-none"
+            className="!p-1 hover:bg-gray-100 rounded-full transition-all duration-200 cursor-pointer text-gray-400 hover:text-gray-900 !outline-none focus:!ring-0 !border-none hover:rotate-90"
             style={{ backgroundColor: 'transparent' }}
           >
             <X size={20} strokeWidth={2.5} />
@@ -94,7 +91,7 @@ export default function ConfigPopup({ onClose, colors }) {
                 Max Evidences
               </span>
               <span
-                className="text-[18px] font-bold"
+                className="text-[18px] font-bold transition-all duration-300"
                 style={{ color: themeHex }}
               >
                 {maxEvidence}
@@ -110,7 +107,7 @@ export default function ConfigPopup({ onClose, colors }) {
                 onChange={(e) =>
                   handleUpdate({ maxEvidence: parseInt(e.target.value) })
                 }
-                className="w-full h-1.5 bg-[#E5E7EB] rounded-lg appearance-none cursor-pointer"
+                className="w-full h-1.5 bg-[#E5E7EB] rounded-lg appearance-none cursor-pointer accent-current transition-all"
                 style={{ accentColor: themeHex }}
               />
               <div className="relative h-4 mt-1 px-0.5">
@@ -125,14 +122,13 @@ export default function ConfigPopup({ onClose, colors }) {
           </div>
 
           {/* Toggle Section */}
-          <div className="bg-[#F8FAFC]/90 rounded-xl  flex items-center justify-between border border-gray-50 p-2">
+          <div className="bg-[#F8FAFC]/90 rounded-xl flex items-center justify-between border border-gray-50 p-2.5 hover:bg-[#F1F5F9] transition-colors duration-200">
             <div className="space-y-0.5">
-              <p className="text-[15px] font-bold text-[#334155]">
+              <p className="text-[14px] font-bold text-[#334155]">
                 Allow Non-Factcheck Articles
               </p>
-              <p className="text-[12px] text-gray-500 font-medium">
-                Allow Non-Factcheck Articles to be used for the Overall Verdict
-                scoring
+              <p className="text-[11px] text-gray-500 font-medium">
+                Used for the Overall Verdict scoring
               </p>
             </div>
 
@@ -140,13 +136,13 @@ export default function ConfigPopup({ onClose, colors }) {
               onClick={() =>
                 handleUpdate({ useNonFactcheck: !useNonFactcheck })
               }
-              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer !outline-none focus:!ring-0 !border-none !p-0"
+              className="relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 cursor-pointer !outline-none focus:!ring-0 !border-none !p-0 hover:scale-[1.05] active:scale-95"
               style={{
                 backgroundColor: useNonFactcheck ? themeHex : '#CBD5E1',
               }}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-all duration-300 shadow-sm ${
                   useNonFactcheck ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
