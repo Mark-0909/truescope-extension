@@ -28,22 +28,23 @@ export default function ClaimPopup({ selectedText, onClose, onEdit, colors }) {
 
   return (
     <div className="fixed inset-0 !bg-black/40 flex items-center justify-center z-[150] backdrop-blur-[2px] transition-all duration-300">
-      <div className="!bg-white rounded-[24px] shadow-2xl w-[340px] max-h-[85vh] overflow-hidden flex flex-col border border-gray-100 transition-all duration-300">
+      <div className="!bg-white rounded-2xl shadow-2xl w-[340px] max-h-[85vh] overflow-hidden flex flex-col border border-gray-100 transition-all duration-300">
         {/* Header */}
-        <div className="flex justify-between items-center pl-6 pr-3 py-3 border-b border-gray-50">
+        <div className="flex justify-between items-center pl-6 pr-3 py-2.5 border-b border-gray-50/50">
           <h2 className="text-[18px] font-bold text-[#1E293B]">
             Statement Being Analyzed
           </h2>
           <button
             onClick={onClose}
-            className="p-2 !bg-transparent !border-none !shadow-none transition-colors cursor-pointer text-gray-400 hover:text-gray-900 !outline-none"
+            className="!p-1 hover:bg-gray-100 rounded-full transition-all duration-200 cursor-pointer text-gray-400 hover:text-gray-900 !outline-none focus:!ring-0 !border-none hover:rotate-90"
+            style={{ backgroundColor: 'transparent' }}
           >
-            <X size={22} strokeWidth={2.5} />
+            <X size={20} strokeWidth={2.5} />
           </button>
         </div>
 
         {/* Content Area */}
-        <div className="px-6 pb-3 pt-1 overflow-y-auto">
+        <div className="px-6 pb-3 pt-2 overflow-y-auto">
           <p className="text-[16px] leading-relaxed font-semibold italic text-gray-700 text-center">
             "{selectedText}"
           </p>

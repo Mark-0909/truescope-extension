@@ -42,17 +42,18 @@ export default function EditPopup({ selectedText, onClose, colors }) {
 
   return (
     <div className="fixed inset-0 !bg-black/40 flex items-center justify-center z-[150] backdrop-blur-[2px] transition-all duration-300">
-      <div className="!bg-white rounded-[24px] shadow-2xl w-[340px] overflow-hidden flex flex-col border border-gray-100 transition-all duration-300">
+      <div className="!bg-white rounded-2xl shadow-2xl w-[340px] overflow-hidden flex flex-col border border-gray-100 transition-all duration-300">
         {/* Header */}
-        <div className="flex justify-between items-center pl-6 pr-3 py-3 border-b border-gray-50">
+        <div className="flex justify-between items-center pl-6 pr-3 py-2.5 border-b border-gray-50/50">
           <h2 className="text-[18px] font-bold text-[#1E293B]">
             Edit Statement
           </h2>
           <button
             onClick={onClose}
-            className="p-2 !bg-transparent !border-none !shadow-none transition-colors cursor-pointer text-gray-400 hover:text-gray-900 !outline-none"
+            className="!p-1 hover:bg-gray-100 rounded-full transition-all duration-200 cursor-pointer text-gray-400 hover:text-gray-900 !outline-none focus:!ring-0 !border-none hover:rotate-90"
+            style={{ backgroundColor: 'transparent' }}
           >
-            <X size={22} strokeWidth={2.5} />
+            <X size={20} strokeWidth={2.5} />
           </button>
         </div>
 
@@ -79,8 +80,8 @@ export default function EditPopup({ selectedText, onClose, colors }) {
             onClick={handleSave}
             disabled={!isValid}
             className={`flex items-center gap-2 px-6 py-2.5 text-white text-[14px] font-bold rounded-xl transition-all duration-200 transform !outline-none ${
-              isValid 
-                ? 'hover:scale-[1.02] active:scale-95 shadow-xl hover:brightness-110 cursor-pointer' 
+              isValid
+                ? 'hover:scale-[1.02] active:scale-95 shadow-xl hover:brightness-110 cursor-pointer'
                 : 'opacity-40 grayscale cursor-not-allowed'
             }`}
             style={{
