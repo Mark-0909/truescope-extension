@@ -11,6 +11,8 @@ import { getItemsFromFilter, mapVerdictToLabel } from '../utils/scripts.js'
 import SearchResultCard from './SearchResultCard.jsx'
 import { Settings } from 'lucide-react'
 import ConfigPopup from './ConfigPopup.jsx'
+import ClaimPopup from './ClaimPopup.jsx'
+import EditPopup from './EditPopup.jsx'
 import Skeleton from './Skeleton.js'
 
 const getColorClasses = (verdictLabel, isAnalyzing = false) => {
@@ -77,6 +79,7 @@ export default function Popup({
   archivedIds,
   setArchivedIds,
   isStatsLoading,
+  MIN_CHARS,
 }) {
   const [verdictLabel, setVerdictLabel] = useState(
     mapVerdictToLabel(overallVerdict),
@@ -102,7 +105,8 @@ export default function Popup({
     archived: [],
   })
   const [displayItems, setDisplayItems] = useState([])
-
+  const [isClaimOpened, setIsClaimOpened] = useState(false)
+  const [isClaimEditorOpen, setIsClaimEditorOpen] = useState(false)
   // Handler to archive an article by id
   const handleArchive = (id) => {
     setArchivedIds((prev) => {
@@ -219,16 +223,45 @@ export default function Popup({
     }
   }, [isLoading, verdictLabel])
 
+  const TRUNCATION_LIMIT = 180
+  const isTruncated = (selectedText || '').length > TRUNCATION_LIMIT
+  const displayText = isTruncated
+    ? (selectedText || '').substring(0, TRUNCATION_LIMIT) + '... '
+    : (selectedText || '') + ' '
+
   return (
     <div className="w-full h-screen bg-white text-gray-900 flex flex-col overflow-hidden">
       {/*Statement Area*/}
       <div
-        className={`flex flex-col items-center justify-center p-3 space-y-0 w-full ${colors.statement}`}
+        className={`p-4 ${colors.statement} w-full flex flex-col items-center justify-center space-y-1`}
       >
-        <p className="text-sm font-semibold italic text-white/80 wrap-break-words text-center w-full">
-          "{selectedText || 'P20 rice distributed nationwide next week.'}"
+        <div className="text-center w-full leading-relaxed">
+          <p className="text-[13.5px] font-medium text-white/90">
+            <span className="italic mr-1">"{displayText}"</span>
+            <span className="inline-flex items-center whitespace-nowrap">
+              {isTruncated && (
+                <>
+                  <span
+                    onClick={() => setIsClaimOpened(true)}
+                    className="underline text-white/80 hover:text-white cursor-pointer transition-colors text-[13px]"
+                  >
+                    View full
+                  </span>
+                  <span className="mx-1.5 opacity-30 text-white">|</span>
+                </>
+              )}
+              <span
+                onClick={() => setIsClaimEditorOpen(true)}
+                className="underline text-white/80 hover:text-white cursor-pointer transition-colors text-[13px]"
+              >
+                Edit
+              </span>
+            </span>
+          </p>
+        </div>
+        <p className="text-xs font-semibold tracking-wider text-white/40">
+          Statement
         </p>
-        <p className="text-xs font-semibold bold text-white/50">Statement</p>
       </div>
 
       {/*Verdict/Summary Area*/}
@@ -388,6 +421,25 @@ export default function Popup({
       </div>
       {isConfigOpen && (
         <ConfigPopup onClose={() => setIsConfigOpen(false)} colors={colors} />
+      )}
+      {isClaimOpened && (
+        <ClaimPopup
+          selectedText={selectedText}
+          onClose={() => setIsClaimOpened(false)}
+          onEdit={() => {
+            setIsClaimOpened(false)
+            setIsClaimEditorOpen(true)
+          }}
+          colors={colors}
+        />
+      )}
+      {isClaimEditorOpen && (
+        <EditPopup
+          selectedText={selectedText}
+          onClose={() => setIsClaimEditorOpen(false)}
+          colors={colors}
+          MIN_CHARS={MIN_CHARS}
+        />
       )}
     </div>
   )
