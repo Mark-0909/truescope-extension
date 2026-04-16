@@ -1,6 +1,6 @@
 export const mapVerdictToLabel = (verdict) => {
-  if (verdict > 0.33) return 'true'
-  if (verdict < -0.33) return 'fake'
+  if (verdict > 0.05) return 'true'
+  if (verdict < -0.05) return 'fake'
   return 'neutral'
 }
 
