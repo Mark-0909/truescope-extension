@@ -79,6 +79,7 @@ export default function Popup({
   archivedIds,
   setArchivedIds,
   isStatsLoading,
+  MIN_CHARS,
 }) {
   const [verdictLabel, setVerdictLabel] = useState(
     mapVerdictToLabel(overallVerdict),
@@ -437,6 +438,7 @@ export default function Popup({
           selectedText={selectedText}
           onClose={() => setIsClaimEditorOpen(false)}
           colors={colors}
+          MIN_CHARS={MIN_CHARS}
         />
       )}
     </div>

@@ -217,6 +217,7 @@ function App() {
         archivedIds={archivedIds}
         setArchivedIds={setArchivedIds}
         isStatsLoading={isStatsLoading}
+        MIN_CHARS={MIN_CHARS}
       />
     )
   }

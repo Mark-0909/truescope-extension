@@ -1,9 +1,13 @@
 import { X, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 
-export default function EditPopup({ selectedText, onClose, colors }) {
+export default function EditPopup({
+  selectedText,
+  onClose,
+  colors,
+  MIN_CHARS,
+}) {
   const [editedText, setEditedText] = useState(selectedText || '')
-  const MIN_CHARS = 20
   const isValid = editedText.trim().length >= MIN_CHARS
 
   const colorMap = {
