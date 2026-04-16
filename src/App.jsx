@@ -20,7 +20,7 @@ function App() {
   const [archivedIds, setArchivedIds] = useState(new Set())
   const wsRef = useRef(null)
 
-  const MIN_CHARS = 20
+  const MIN_CHARS = 30
   const isTextTooShort = selectedText && selectedText.trim().length < MIN_CHARS
 
   // Phase 0 = Still searching for relevant articles. Displays initial search results.
@@ -188,9 +188,15 @@ function App() {
     return (
       <div className="w-full h-screen bg-white flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
         <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-6 shadow-sm border border-amber-100">
-          <FileEdit size={32} className="text-amber-500 opacity-80" strokeWidth={1.5} />
+          <FileEdit
+            size={32}
+            className="text-amber-500 opacity-80"
+            strokeWidth={1.5}
+          />
         </div>
-        <h2 className="text-[20px] font-bold text-slate-800 mb-2">Claim is too short</h2>
+        <h2 className="text-[20px] font-bold text-slate-800 mb-2">
+          Claim is too short
+        </h2>
         <p className="text-[14px] text-slate-500 leading-relaxed max-w-[240px]">
           Please select more text to ensure a high-quality analysis.
         </p>
@@ -217,7 +223,9 @@ function App() {
 
   return (
     <div className="w-full h-screen bg-white flex flex-col items-center justify-center p-8 text-center opacity-60">
-       <p className="text-slate-400 font-medium tracking-tight">No statement selected yet</p>
+      <p className="text-slate-400 font-medium tracking-tight">
+        No statement selected yet
+      </p>
     </div>
   )
 }
