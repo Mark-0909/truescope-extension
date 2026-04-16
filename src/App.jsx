@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { FileEdit } from 'lucide-react'
 import Popup from './components/Popup.jsx'
 import { calculateStats, verifyClaim } from './services/apiService.js'
 import { getNonArchivedEvidences } from './utils/scripts.js'
@@ -187,7 +188,7 @@ function App() {
     return (
       <div className="w-full h-screen bg-white flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
         <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-6 shadow-sm border border-amber-100">
-          <span className="text-2xl">📝</span>
+          <FileEdit size={32} className="text-amber-500 opacity-80" strokeWidth={1.5} />
         </div>
         <h2 className="text-[20px] font-bold text-slate-800 mb-2">Claim is too short</h2>
         <p className="text-[14px] text-slate-500 leading-relaxed max-w-[240px]">
