@@ -19,6 +19,9 @@ function App() {
   const [archivedIds, setArchivedIds] = useState(new Set())
   const wsRef = useRef(null)
 
+  const MIN_CHARS = 20
+  const isTextTooShort = selectedText && selectedText.trim().length < MIN_CHARS
+
   // Phase 0 = Still searching for relevant articles. Displays initial search results.
   // Phase 1 = Filtered search results according to relevance, and compute scores for each.
   // Phase 2 = Aggregated results and overall stats.
@@ -62,7 +65,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (!selectedText) return
+    if (!selectedText || isTextTooShort) return
 
     // Close any previous WebSocket connection
     if (wsRef.current) {
@@ -149,7 +152,7 @@ function App() {
         wsRef.current = null
       }
     }
-  }, [selectedText])
+  }, [selectedText, isTextTooShort])
 
   useEffect(() => {
     if (phase !== 2) return
@@ -179,6 +182,21 @@ function App() {
     )
   }
 
+  // Render logic for too short
+  if (isTextTooShort) {
+    return (
+      <div className="w-full h-screen bg-white flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+        <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-6 shadow-sm border border-amber-100">
+          <span className="text-2xl">📝</span>
+        </div>
+        <h2 className="text-[20px] font-bold text-slate-800 mb-2">Claim is too short</h2>
+        <p className="text-[14px] text-slate-500 leading-relaxed max-w-[240px]">
+          Please select more text to ensure a high-quality analysis.
+        </p>
+      </div>
+    )
+  }
+
   if (selectedText) {
     return (
       <Popup
@@ -196,7 +214,11 @@ function App() {
     )
   }
 
-  return 'No relevant article found :('
+  return (
+    <div className="w-full h-screen bg-white flex flex-col items-center justify-center p-8 text-center opacity-60">
+       <p className="text-slate-400 font-medium tracking-tight">No statement selected yet</p>
+    </div>
+  )
 }
 
 export default App

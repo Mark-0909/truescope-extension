@@ -3,6 +3,8 @@ import { useState } from 'react'
 
 export default function EditPopup({ selectedText, onClose, colors }) {
   const [editedText, setEditedText] = useState(selectedText || '')
+  const MIN_CHARS = 20
+  const isValid = editedText.trim().length >= MIN_CHARS
 
   const colorMap = {
     'bg-red-900': '#7f1d1d',
@@ -21,6 +23,8 @@ export default function EditPopup({ selectedText, onClose, colors }) {
     : colorMap[colors?.statement] || '#6366F1'
 
   const handleSave = () => {
+    if (!isValid) return
+
     if (
       typeof chrome !== 'undefined' &&
       chrome.storage &&
@@ -53,7 +57,7 @@ export default function EditPopup({ selectedText, onClose, colors }) {
         </div>
 
         {/* Content */}
-        <div className="px-6 py-4">
+        <div className="px-6 py-2">
           <textarea
             className="w-full h-44 p-4 text-[15px] font-medium text-gray-700 !bg-[#F8FAFC] border border-gray-100 rounded-[20px] !outline-none focus:ring-2 transition-all resize-none shadow-inner"
             style={{ focusRingColor: themeHex }}
@@ -73,10 +77,15 @@ export default function EditPopup({ selectedText, onClose, colors }) {
           </button>
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 px-6 py-2.5 text-white text-[14px] font-bold rounded-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-95 shadow-xl hover:brightness-110 !outline-none"
+            disabled={!isValid}
+            className={`flex items-center gap-2 px-6 py-2.5 text-white text-[14px] font-bold rounded-xl transition-all duration-200 transform !outline-none ${
+              isValid 
+                ? 'hover:scale-[1.02] active:scale-95 shadow-xl hover:brightness-110 cursor-pointer' 
+                : 'opacity-40 grayscale cursor-not-allowed'
+            }`}
             style={{
               backgroundColor: themeHex,
-              boxShadow: `0 10px 15px -3px ${themeHex}33`,
+              boxShadow: isValid ? `0 10px 15px -3px ${themeHex}33` : 'none',
             }}
           >
             <RefreshCw size={18} strokeWidth={2.5} />
