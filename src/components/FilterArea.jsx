@@ -46,7 +46,6 @@ export default function FilterArea({
     if (count === 0) return null
     return (
       <span
-        key={filter}
         onClick={onClick}
         className={`
           cursor-pointer
@@ -70,13 +69,14 @@ export default function FilterArea({
   return (
     <>
       <div className={`flex gap-1 px-1 pb-2 ${bgClass || ''}`}>
-        {baseFilters.map((filter) => {
+        {baseFilters.map((filter, index) => {
           let isActive = active === filter
           if (filter === 'supplementary' && layeredFilters.includes(active)) {
             isActive = true
           }
           return (
             <FilterButton
+              key={`base-${filter}-${index}`}
               filter={filter}
               isActive={isActive}
               onClick={() => handleActiveClick(filter)}
@@ -87,8 +87,9 @@ export default function FilterArea({
       </div>
       {layeredFilters.includes(active) && phase === 2 && (
         <div className={`flex gap-1 px-1 pb-2 ${bgClass || ''}`}>
-          {layeredFilters.map((filter) => (
+          {layeredFilters.map((filter, index) => (
             <FilterButton
+              key={`layer-${filter}-${index}`}
               filter={filter}
               isActive={active === filter}
               onClick={() => setActive(filter)}

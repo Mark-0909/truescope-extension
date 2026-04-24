@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import FilterArea from './filterArea.jsx'
+import FilterArea from './FilterArea.jsx'
 import BiasBar from './BiasBar.jsx'
 import ArticleCard from './ArticleCard.jsx'
 import InfoCard from './InfoCard.jsx'
@@ -292,7 +292,7 @@ export default function Popup({
                   <span>Overall Verdict</span>
                   <InfoCard
                     title="Overall Verdict"
-                    definition="This score represents the overall verdict based on aggregated article evidence."
+                    definition="This is the final calculated truthfulness score, weighed across all gathered evidence."
                   />
                 </div>
               </div>
@@ -311,13 +311,13 @@ export default function Popup({
                     <span>Truth</span>
                     <span className="absolute -right-4 -top-1">
                       <InfoCard
-                        title="Truth Confidence Score"
-                        definition="This score represents the confidence level in the truthfulness of the statement based on the analysis of supporting and refuting articles."
+                        title="Consensus Score"
+                        definition="Measures how much the different sources agree on the same facts. High means a strong consensus among journalists; low means the reporting is conflicting."
                       />
                     </span>
                   </div>
                   <span className="text-[13px] text-black mt-0">
-                    Confidence
+                    Consensus
                   </span>
                 </div>
                 {/* Bias Divergence */}
@@ -334,7 +334,7 @@ export default function Popup({
                     <span className="absolute -right-4 -top-1">
                       <InfoCard
                         title="Bias Divergence"
-                        definition="This score measures the extent of divergence in bias among different sources."
+                        definition="Shows how much the news coverage comes from various political sides. High means multiple perspectives; low means sources are clustered on one side."
                       />
                     </span>
                   </div>
@@ -356,7 +356,7 @@ export default function Popup({
                     <span className="absolute -right-4 -top-1">
                       <InfoCard
                         title="Bias Consistency Scoring"
-                        definition="This score indicates how consistent the bias is across different sources supporting the statement."
+                        definition="Measures if reporting follows a predictable partisan pattern. High means sources are reporting based on their political background; low means they are following facts regardless of bias."
                       />
                     </span>
                   </div>

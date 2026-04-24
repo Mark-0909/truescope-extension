@@ -110,13 +110,26 @@ function App() {
           setStats(data.stats)
         }
 
-        // Mark results as aggregated if their doc_id is in data.doc_ids
+        // Mark results as aggregated and update potential_bias if provided
+        const biasedIds =
+          data.results && Array.isArray(data.results)
+            ? new Set(data.results.map((r) => r.doc_id))
+            : new Set()
+
         if (data.doc_ids && Array.isArray(data.doc_ids)) {
           setResults((prevResults) =>
-            prevResults.map((result) => ({
-              ...result,
-              is_aggregated: data.doc_ids.includes(result.doc_id),
-            })),
+            prevResults.map((result) => {
+              const updatedHit = data.results?.find(
+                (r) => r.doc_id === result.doc_id,
+              )
+              return {
+                ...result,
+                is_aggregated: data.doc_ids.includes(result.doc_id),
+                potential_bias:
+                  result.potential_bias || !!updatedHit,
+                bias_reason: updatedHit?.bias_reason || result.bias_reason,
+              }
+            }),
           )
         }
 
