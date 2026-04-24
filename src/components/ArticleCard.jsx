@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import InfoCard from './InfoCard.jsx'
 import {
   formatDate,
@@ -7,7 +7,7 @@ import {
   verdictToTruthScore,
 } from '../utils/scripts.js'
 import { LoaderCircle } from 'lucide-react'
-import { Archive, Undo2 } from 'lucide-react'
+import { Archive, Undo2, Flag } from 'lucide-react'
 import { useEffect } from 'react'
 
 export default function ArticleCard({
@@ -26,6 +26,9 @@ export default function ArticleCard({
   const [showUnarchive, setShowUnarchive] = useState(
     onUnarchive && score.archived && isHovered,
   )
+  const [isFlagHovered, setIsFlagHovered] = useState(false)
+  const flagRef = useRef(null)
+  const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 })
 
   const handleUrlClick = (e) => {
     e.stopPropagation()
@@ -51,9 +54,39 @@ export default function ArticleCard({
     onUnarchive(score.doc_id)
   }
 
+  const handleFlagMouseEnter = () => {
+    if (flagRef.current) {
+      const rect = flagRef.current.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - rect.bottom
+      const spaceAbove = rect.top
+      const tooltipHeight = 280 // Increased estimate for long bias descriptions
+
+      if (spaceBelow < tooltipHeight && spaceAbove > spaceBelow) {
+        // Show above if not enough space below
+        setTooltipPos({
+          top: rect.top - 12,
+          left: rect.left,
+          transform: 'translateY(-100%)',
+        })
+      } else {
+        // Show below
+        setTooltipPos({
+          top: rect.bottom + 12,
+          left: rect.left,
+          transform: 'none',
+        })
+      }
+    }
+    setIsFlagHovered(true)
+  }
+
   return (
     <div
-      className={`w-full border px-3 py-2 cursor-pointer transition-opacity duration-300 opacity-100 ${
+      className={`w-full border px-3 py-2 cursor-pointer transition-all duration-300 opacity-100 relative ${
+        isHovered || isFlagHovered
+          ? 'z-[60] shadow-md border-amber-200/50'
+          : 'z-0'
+      } ${
         verdictLabel === 'true'
           ? 'border-l-4 border-l-green-500 hover:bg-green-100/60'
           : verdictLabel === 'fake'
@@ -64,6 +97,35 @@ export default function ArticleCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Potential Bias Indicator Flag */}
+      {score.potential_bias && (
+        <div
+          ref={flagRef}
+          className="absolute top-0.5 left-[0.5px] bg-white rounded-full p-0.5 shadow-sm border border-amber-200 z-10 cursor-help"
+          onMouseEnter={handleFlagMouseEnter}
+          onMouseLeave={() => setIsFlagHovered(false)}
+        >
+          <Flag size={10} className="text-amber-500 fill-amber-500" />
+
+          {/* Custom Tooltip */}
+          {isFlagHovered && score.bias_reason && (
+            <div
+              style={{
+                position: 'fixed',
+                top: tooltipPos.top,
+                left: tooltipPos.left,
+                transform: tooltipPos.transform,
+              }}
+              className="w-48 max-h-[250px] overflow-y-auto bg-slate-900 text-white text-[10px] p-2 rounded shadow-xl z-[9999] animate-in fade-in zoom-in duration-200 border border-amber-500/30 pointer-events-none custom-scrollbar"
+            >
+              <div className="flex items-center gap-1 mb-1 text-amber-400 font-bold uppercase tracking-wider text-[9px] sticky top-0 bg-slate-900 pb-1">
+                <Flag size={8} fill="currentColor" /> Potential Bias Analysis
+              </div>
+              {score.bias_reason}
+            </div>
+          )}
+        </div>
+      )}
       {/*Header with Icon and Title*/}
       <div className="flex flex-row items-center justify-between h-auto gap-2">
         <div className="flex-1 min-w-0">
@@ -153,9 +215,9 @@ export default function ArticleCard({
                   className="size-9 text-green-500"
                 >
                   <path
-                    fill-rule="evenodd"
+                    fillRule="evenodd"
                     d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
-                    clip-rule="evenodd"
+                    clipRule="evenodd"
                   />
                 </svg>
                 <p className="italic font-bold text-green-400 text-[10px] -mt-1">
@@ -207,11 +269,17 @@ export default function ArticleCard({
             </p>
 
             <p
-              className={`text-sm text-gray-700 ${score.remarks ? '' : 'flex items-center gap-1'}`}
+              className={`text-sm text-gray-700 ${score.remarks || score.content ? '' : 'flex items-center gap-1'}`}
             >
-              <span className="font-bold">Remarks:</span>{' '}
+              <span className="font-bold">
+                {score.is_aggregated ? 'Remarks:' : 'Contents:'}
+              </span>{' '}
               {score.remarks ? (
                 score.remarks
+              ) : score.content ? (
+                score.content.length > 500
+                  ? score.content.substring(0, 500) + '...'
+                  : score.content
               ) : (
                 <LoaderCircle
                   className="animate-spin"
