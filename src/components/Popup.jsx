@@ -9,7 +9,7 @@ import FakeIcon from '../assets/Fake_Icon.png'
 import NeedsContextIcon from '../assets/Needs_Context_Icon.png'
 import { getItemsFromFilter, mapVerdictToLabel } from '../utils/scripts.js'
 import SearchResultCard from './SearchResultCard.jsx'
-import { Settings } from 'lucide-react'
+import { Settings, RefreshCw } from 'lucide-react'
 import ConfigPopup from './ConfigPopup.jsx'
 import ClaimPopup from './ClaimPopup.jsx'
 import EditPopup from './EditPopup.jsx'
@@ -75,11 +75,14 @@ export default function Popup({
   searchHits,
   results,
   stats,
+  active,
+  setActive,
   isLoading,
   archivedIds,
   setArchivedIds,
   isStatsLoading,
   MIN_CHARS,
+  onRerunVerify,
 }) {
   const [verdictLabel, setVerdictLabel] = useState(
     mapVerdictToLabel(overallVerdict),
@@ -92,7 +95,6 @@ export default function Popup({
   const [biasConsistency, setBiasConsistency] = useState(0)
   const [overallVerdictScore, setOverallVerdictScore] = useState(0)
   const [isConfigOpen, setIsConfigOpen] = useState(false)
-  const [active, setActive] = useState('all')
   const [items, setItems] = useState(searchHits)
   const [groupedItems, setGroupedItems] = useState({
     relevant: [],
@@ -131,10 +133,9 @@ export default function Popup({
     })
   }
 
-  // Reset filter to 'All' when selectedText (claim) changes
-  useEffect(() => {
-    setActive('all')
-  }, [selectedText])
+  const handleRerun = () => {
+    onRerunVerify()
+  }
 
   useEffect(() => {
     if (phase === 0) {
@@ -143,12 +144,6 @@ export default function Popup({
       setItems(results)
     }
   }, [searchHits, results, phase])
-
-  useEffect(() => {
-    if (phase === 2) {
-      setActive('relevant')
-    }
-  }, [phase])
 
   useEffect(() => {
     const grouped = {
@@ -227,7 +222,8 @@ export default function Popup({
   const isTruncated = (selectedText || '').length > TRUNCATION_LIMIT
   const displayText = isTruncated
     ? (selectedText || '').substring(0, TRUNCATION_LIMIT) + '... '
-    : (selectedText || '') + ' '
+    : selectedText || ''
+  const isRerunDisabled = phase < 2
 
   return (
     <div className="w-full h-screen bg-white text-gray-900 flex flex-col overflow-hidden">
@@ -316,9 +312,7 @@ export default function Popup({
                       />
                     </span>
                   </div>
-                  <span className="text-[13px] text-black mt-0">
-                    Consensus
-                  </span>
+                  <span className="text-[13px] text-black mt-0">Consensus</span>
                 </div>
                 {/* Bias Divergence */}
                 <div className="flex flex-col items-center mt-0 flex-1">
@@ -384,12 +378,28 @@ export default function Popup({
       >
         <p className="font-bold text-[13px]">Supporting Articles</p>
 
-        <button
-          onClick={() => setIsConfigOpen(!isConfigOpen)}
-          className="!bg-transparent !border-none !p-1 !rounded-full opacity-100 hover:opacity-60 hover:bg-white/10 transition-all duration-300 ease-in-out will-change-opacity cursor-pointer flex items-center justify-center !outline-none focus:!ring-0"
-        >
-          <Settings size={17} />
-        </button>
+        <div className="flex">
+          <button
+            onClick={handleRerun}
+            disabled={isRerunDisabled}
+            className="!bg-transparent !border-none !p-1 !rounded-full hover:opacity-60 hover:bg-white/10 transition-all duration-300 ease-in-out will-change-opacity flex items-center justify-center !outline-none focus:!ring-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:opacity-40 disabled:hover:bg-transparent disabled:pointer-events-none"
+          >
+            <RefreshCw
+              size={17}
+              strokeWidth={2.5}
+              className={isRerunDisabled ? 'animate-spin' : ''}
+              style={
+                isRerunDisabled ? { animationDuration: '1.8s' } : undefined
+              }
+            />
+          </button>
+          <button
+            onClick={() => setIsConfigOpen(!isConfigOpen)}
+            className="!bg-transparent !border-none !p-1 !rounded-full opacity-100 hover:opacity-60 hover:bg-white/10 transition-all duration-300 ease-in-out will-change-opacity cursor-pointer flex items-center justify-center !outline-none focus:!ring-0"
+          >
+            <Settings size={17} />
+          </button>
+        </div>
       </div>
 
       {/* Filter bar outside colored area */}

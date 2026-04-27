@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { FileEdit } from 'lucide-react'
 import Popup from './components/Popup.jsx'
 import { calculateStats, verifyClaim } from './services/apiService.js'
@@ -18,7 +18,9 @@ function App() {
   })
   const [isStatsLoading, setIsStatsLoading] = useState(false)
   const [archivedIds, setArchivedIds] = useState(new Set())
+  const [active, setActive] = useState('all')
   const wsRef = useRef(null)
+  const configRef = useRef(config)
 
   const MIN_CHARS = 30
   const isTextTooShort = selectedText && selectedText.trim().length < MIN_CHARS
@@ -27,71 +29,64 @@ function App() {
   // Phase 1 = Filtered search results according to relevance, and compute scores for each.
   // Phase 2 = Aggregated results and overall stats.
   const [phase, setPhase] = useState(0)
+  const pendingStats = {
+    overall_verdict: 0,
+    bias_divergence: 0,
+    truth_confidence_score: 0,
+    bias_consistency: 0,
+    total_processed: 0,
+  }
 
-  useEffect(() => {
-    chrome.storage.local.get(['selectedText', 'config'], (result) => {
-      // Get selected text on initial load
-      if (result.selectedText) {
-        setSelectedText(result.selectedText)
-      }
-
-      // Load config if there is any, initialize if not
-      if (result.config) {
-        setConfig(result.config)
-      } else {
-        chrome.storage.local.set({ config })
-      }
-    })
-
-    // Listen for storage changes (when user selects new text while panel is open)
-    const handleStorageChange = (changes, areaName) => {
-      if (areaName === 'local') {
-        if (changes.selectedText) {
-          console.log('New text selected:', changes.selectedText.newValue)
-          setSelectedText(changes.selectedText.newValue)
-        }
-        if (changes.config) {
-          console.log('Config update detected:', changes.config.newValue)
-          setConfig(changes.config.newValue)
-        }
-      }
-    }
-
-    chrome.storage.onChanged.addListener(handleStorageChange)
-
-    // Cleanup listener on unmount
-    return () => {
-      chrome.storage.onChanged.removeListener(handleStorageChange)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!selectedText || isTextTooShort) return
-
-    // Close any previous WebSocket connection
+  const closeWebSocket = useCallback(() => {
     if (wsRef.current) {
       console.log('Closing previous WebSocket')
       wsRef.current.close()
       wsRef.current = null
     }
+  }, [])
 
-    // Reset all state for new claim
-    setPhase(0)
-    setIsLoading(true)
-    setError(null)
-    setSearchHits([])
-    setResults([])
-    setOverallVerdict(0)
-    setStats({
-      overall_verdict: 0,
-      bias_divergence: 0,
-      truth_confidence_score: 0,
-      bias_consistency: 0,
-      total_processed: 0,
+  const resetAnalysisState = useCallback(
+    ({ isLoading = false, overallVerdict = null, stats = null } = {}) => {
+      setPhase(0)
+      setIsLoading(isLoading)
+      setError(null)
+      setSearchHits([])
+      setResults([])
+      setOverallVerdict(overallVerdict)
+      setStats(stats)
+      setIsStatsLoading(false)
+      setArchivedIds(new Set())
+      setActive('all')
+    },
+    [],
+  )
+
+  const resetAppState = useCallback(
+    ({ clearSelectedText = false } = {}) => {
+      closeWebSocket()
+
+      resetAnalysisState()
+      setSelectedText(null)
+
+      if (clearSelectedText) {
+        chrome.storage.local.remove('selectedText')
+      }
+    },
+    [closeWebSocket, resetAnalysisState],
+  )
+
+  const runVerify = useCallback(() => {
+    closeWebSocket()
+
+    if (!selectedText || isTextTooShort) return
+
+    resetAnalysisState({
+      isLoading: true,
+      overallVerdict: 0,
+      stats: pendingStats,
     })
-    setArchivedIds(new Set())
 
-    verifyClaim(selectedText, config, {
+    verifyClaim(selectedText, configRef.current, {
       onSearchHit: (hits) => {
         setPhase(0)
         setSearchHits(hits)
@@ -111,11 +106,6 @@ function App() {
         }
 
         // Mark results as aggregated and update potential_bias if provided
-        const biasedIds =
-          data.results && Array.isArray(data.results)
-            ? new Set(data.results.map((r) => r.doc_id))
-            : new Set()
-
         if (data.doc_ids && Array.isArray(data.doc_ids)) {
           setResults((prevResults) =>
             prevResults.map((result) => {
@@ -125,8 +115,7 @@ function App() {
               return {
                 ...result,
                 is_aggregated: data.doc_ids.includes(result.doc_id),
-                potential_bias:
-                  result.potential_bias || !!updatedHit,
+                potential_bias: result.potential_bias || !!updatedHit,
                 bias_reason: updatedHit?.bias_reason || result.bias_reason,
               }
             }),
@@ -157,16 +146,87 @@ function App() {
       setError(err.message)
       setIsLoading(false)
     })
+  }, [selectedText, isTextTooShort, closeWebSocket, resetAnalysisState])
 
-    // Cleanup function when component unmounts or selectedText changes
-    return () => {
-      if (wsRef.current) {
-        console.log('Cleaning up WebSocket')
-        wsRef.current.close()
-        wsRef.current = null
+  const handleSelectedTextChange = (selectedText) => {
+    if (selectedText && selectedText.length > 0) {
+      setSelectedText(selectedText)
+    } else {
+      setSelectedText(null)
+    }
+  }
+
+  useEffect(() => {
+    configRef.current = config
+  }, [config])
+
+  useEffect(() => {
+    chrome.storage.local.get(['selectedText', 'config'], (result) => {
+      // Get selected text on initial load
+      handleSelectedTextChange(result.selectedText)
+
+      // Load config if there is any, initialize if not
+      if (result.config) {
+        configRef.current = result.config
+        setConfig(result.config)
+      } else {
+        chrome.storage.local.set({ config: configRef.current })
+      }
+    })
+
+    // Listen for storage changes (when user selects new text while panel is open)
+    const handleStorageChange = (changes, areaName) => {
+      if (areaName === 'local') {
+        if (changes.selectedText) {
+          console.log('New text selected:', changes.selectedText.newValue)
+          handleSelectedTextChange(changes.selectedText.newValue)
+        }
+        if (changes.config) {
+          console.log('Config update detected:', changes.config.newValue)
+          configRef.current = changes.config.newValue
+          setConfig(changes.config.newValue)
+        }
       }
     }
-  }, [selectedText, isTextTooShort])
+
+    chrome.storage.onChanged.addListener(handleStorageChange)
+
+    // Cleanup listener on unmount
+    return () => {
+      chrome.storage.onChanged.removeListener(handleStorageChange)
+    }
+  }, [])
+
+  useEffect(() => {
+    runVerify()
+  }, [runVerify])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        resetAppState({ clearSelectedText: true })
+      }
+    }
+
+    const handlePageHide = () => {
+      resetAppState({ clearSelectedText: true })
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('pagehide', handlePageHide)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('pagehide', handlePageHide)
+      closeWebSocket()
+    }
+  }, [resetAppState, closeWebSocket])
+
+  useEffect(() => {
+    if (phase === 2) {
+      setActive('relevant')
+    }
+  }, [phase])
 
   useEffect(() => {
     if (phase !== 2) return
@@ -217,6 +277,26 @@ function App() {
     )
   }
 
+  if (!selectedText) {
+    return (
+      <div className="w-full h-screen bg-white flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+        <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-6 shadow-sm border border-amber-100">
+          <FileEdit
+            size={32}
+            className="text-amber-500 opacity-80"
+            strokeWidth={1.5}
+          />
+        </div>
+        <h2 className="text-[20px] font-bold text-slate-800 mb-2">
+          No claim detected
+        </h2>
+        <p className="text-[14px] text-slate-500 leading-relaxed max-w-[240px]">
+          Please select a text to verify.
+        </p>
+      </div>
+    )
+  }
+
   if (selectedText) {
     return (
       <Popup
@@ -226,11 +306,14 @@ function App() {
         searchHits={searchHits}
         results={results}
         stats={stats}
+        active={active}
+        setActive={setActive}
         isLoading={isLoading}
         archivedIds={archivedIds}
         setArchivedIds={setArchivedIds}
         isStatsLoading={isStatsLoading}
         MIN_CHARS={MIN_CHARS}
+        onRerunVerify={runVerify}
       />
     )
   }
