@@ -156,6 +156,14 @@ function App() {
     }
   }
 
+  const consumeSelectedText = (nextSelectedText) => {
+    handleSelectedTextChange(nextSelectedText)
+
+    if (nextSelectedText && nextSelectedText.length > 0) {
+      chrome.storage.local.remove('selectedText')
+    }
+  }
+
   useEffect(() => {
     configRef.current = config
   }, [config])
@@ -163,7 +171,7 @@ function App() {
   useEffect(() => {
     chrome.storage.local.get(['selectedText', 'config'], (result) => {
       // Get selected text on initial load
-      handleSelectedTextChange(result.selectedText)
+      consumeSelectedText(result.selectedText)
 
       // Load config if there is any, initialize if not
       if (result.config) {
@@ -178,8 +186,9 @@ function App() {
     const handleStorageChange = (changes, areaName) => {
       if (areaName === 'local') {
         if (changes.selectedText) {
+          if (changes.selectedText.newValue === undefined) return
           console.log('New text selected:', changes.selectedText.newValue)
-          handleSelectedTextChange(changes.selectedText.newValue)
+          consumeSelectedText(changes.selectedText.newValue)
         }
         if (changes.config) {
           console.log('Config update detected:', changes.config.newValue)
@@ -202,22 +211,20 @@ function App() {
   }, [runVerify])
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        resetAppState({ clearSelectedText: true })
-      }
-    }
-
     const handlePageHide = () => {
       resetAppState({ clearSelectedText: true })
     }
 
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    const handleBeforeUnload = () => {
+      resetAppState({ clearSelectedText: true })
+    }
+
     window.addEventListener('pagehide', handlePageHide)
+    window.addEventListener('beforeunload', handleBeforeUnload)
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('pagehide', handlePageHide)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
       closeWebSocket()
     }
   }, [resetAppState, closeWebSocket])
