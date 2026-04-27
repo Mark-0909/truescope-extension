@@ -21,6 +21,7 @@ export const verifyClaim = async (claim, config, callbacks = {}) => {
 
     const ws = new WebSocket(wsUrl)
     let hasReceivedData = false
+    let timeoutId = null
 
     // Notify that WebSocket was created so caller can store reference
     callbacks.onWebSocketCreated?.(ws)
@@ -67,6 +68,10 @@ export const verifyClaim = async (claim, config, callbacks = {}) => {
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error)
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+        timeoutId = null
+      }
       const errorMsg = error?.message || 'WebSocket connection failed'
       callbacks.onError?.(new Error(errorMsg))
       reject(error)
@@ -74,14 +79,19 @@ export const verifyClaim = async (claim, config, callbacks = {}) => {
 
     ws.onclose = () => {
       console.log('WebSocket disconnected')
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+        timeoutId = null
+      }
       resolve()
     }
 
     // Timeout after 180 seconds (3 minutes)
-    setTimeout(() => {
+    timeoutId = setTimeout(() => {
       if (ws.readyState === WebSocket.OPEN) {
         console.warn('WebSocket timeout - closing connection')
         ws.close()
+        timeoutId = null
         if (!hasReceivedData) {
           const timeoutError = new Error('Request timeout - no data received')
           callbacks.onError?.(timeoutError)
