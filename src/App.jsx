@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { FileEdit } from 'lucide-react'
+import { FileEdit, CircleAlert } from 'lucide-react'
 import Popup from './components/Popup.jsx'
 import { calculateStats, verifyClaim } from './services/apiService.js'
-import { getNonArchivedEvidences } from './utils/scripts.js'
 
 function App() {
   const [overallVerdict, setOverallVerdict] = useState(null)
@@ -22,7 +21,7 @@ function App() {
   const wsRef = useRef(null)
   const configRef = useRef(config)
 
-  const MIN_CHARS = 30
+  const MIN_CHARS = 20
   const isTextTooShort = selectedText && selectedText.trim().length < MIN_CHARS
 
   // Phase 0 = Still searching for relevant articles. Displays initial search results.
@@ -40,6 +39,7 @@ function App() {
   const closeWebSocket = useCallback(() => {
     if (wsRef.current) {
       console.log('Closing previous WebSocket')
+      wsRef.current.__clientClose = true
       wsRef.current.close()
       wsRef.current = null
     }
@@ -138,6 +138,7 @@ function App() {
       onError: (err) => {
         setError(err.message)
         setIsLoading(false)
+        setSelectedText(null)
       },
       onWebSocketCreated: (ws) => {
         wsRef.current = ws
@@ -145,6 +146,7 @@ function App() {
     }).catch((err) => {
       setError(err.message)
       setIsLoading(false)
+      setSelectedText(null)
     })
   }, [selectedText, isTextTooShort, closeWebSocket, resetAnalysisState])
 
@@ -253,12 +255,23 @@ function App() {
   }, [archivedIds])
 
   if (error) {
-    console.error('Error occurred:', error) // Log error to console
+    console.error('Error occurred:', error)
+
     return (
-      <div className="w-screen h-screen flex justify-center items-center text-slate-700">
-        <div className="text-center">
-          <p className="font-bold mb-2">Oops, something went wrong</p>
+      <div className="w-full h-screen bg-white flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+        <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-6 shadow-sm border border-amber-100">
+          <CircleAlert
+            size={32}
+            className="text-amber-500 opacity-80"
+            strokeWidth={1.5}
+          />
         </div>
+        <h2 className="text-[20px] font-bold text-slate-800 mb-2">
+          Oops, something went wrong.
+        </h2>
+        <p className="text-[14px] text-slate-500 leading-relaxed max-w-[240px]">
+          Please try again later.
+        </p>
       </div>
     )
   }

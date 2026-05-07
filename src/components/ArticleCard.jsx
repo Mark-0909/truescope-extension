@@ -33,7 +33,7 @@ export default function ArticleCard({
   const handleUrlClick = (e) => {
     e.stopPropagation()
     e.preventDefault()
-    chrome.tabs.create({ url: score.url })
+    window.open(score.url, '_blank', 'noopener,noreferrer')
   }
 
   // Only allow archive if there is more than 1 evidence in the current group
@@ -277,9 +277,11 @@ export default function ArticleCard({
               {score.remarks ? (
                 score.remarks
               ) : score.content ? (
-                score.content.length > 500
-                  ? score.content.substring(0, 500) + '...'
-                  : score.content
+                score.content.length > 500 ? (
+                  score.content.substring(0, 500) + '...'
+                ) : (
+                  score.content
+                )
               ) : (
                 <LoaderCircle
                   className="animate-spin"

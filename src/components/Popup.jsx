@@ -183,7 +183,7 @@ export default function Popup({
   }, [active, groupedItems])
 
   useEffect(() => {
-    if (stats) {
+    if (stats && !isLoading) {
       const newTruthScore = Math.round(
         (((stats.truth_confidence_score || 0) + 1) / 2) * 100,
       )
@@ -209,14 +209,19 @@ export default function Popup({
       setColors(getColorClasses(newVerdictLabel, false))
       setOverallVerdictScore(newOverallVerdictScore)
     }
-  }, [stats])
+  }, [stats, isLoading])
 
   // Update colors when loading state changes
   useEffect(() => {
     if (isLoading) {
       setColors(getColorClasses(verdictLabel, true))
+      return
     }
-  }, [isLoading, verdictLabel])
+
+    if (stats) {
+      setColors(getColorClasses(verdictLabel, false))
+    }
+  }, [isLoading, verdictLabel, stats])
 
   const TRUNCATION_LIMIT = 180
   const isTruncated = (selectedText || '').length > TRUNCATION_LIMIT
@@ -307,12 +312,14 @@ export default function Popup({
                     <span>Truth</span>
                     <span className="absolute -right-4 -top-1">
                       <InfoCard
-                        title="Consensus Score"
-                        definition="Measures how much the different sources agree on the same facts. High means a strong consensus among journalists; low means the reporting is conflicting."
+                        title="Truth Confidence Score"
+                        definition="The level of certainty in the final verdict based on evidence agreement and AI certainty."
                       />
                     </span>
                   </div>
-                  <span className="text-[13px] text-black mt-0">Consensus</span>
+                  <span className="text-[13px] text-black mt-0">
+                    Confidence
+                  </span>
                 </div>
                 {/* Bias Divergence */}
                 <div className="flex flex-col items-center mt-0 flex-1">

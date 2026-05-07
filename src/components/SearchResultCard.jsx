@@ -1,14 +1,14 @@
-import { useState } from "react";
-import { formatDate, formatSource } from "../utils/scripts.js";
+import { useState } from 'react'
+import { formatDate, formatSource } from '../utils/scripts.js'
 
 export default function SearchResultCard({ searchHit }) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const handleUrlClick = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    chrome.tabs.create({ url: searchHit.url });
-  };
+    e.stopPropagation()
+    e.preventDefault()
+    window.open(searchHit.url, '_blank', 'noopener,noreferrer')
+  }
 
   return (
     <div
@@ -20,9 +20,9 @@ export default function SearchResultCard({ searchHit }) {
         <div className="flex flex-row items-center gap-2 flex-1">
           <div className="flex-1">
             <p
-              className={`text-sm font-bold text-gray-800 transition-all duration-300 ease-in-out ${!isExpanded ? "line-clamp-3" : ""}`}
+              className={`text-sm font-bold text-gray-800 transition-all duration-300 ease-in-out ${!isExpanded ? 'line-clamp-3' : ''}`}
             >
-              {formatSource(searchHit.source)}:{" "}
+              {formatSource(searchHit.source)}:{' '}
               <span className="font-semibold overflow-ellipsis">
                 "{searchHit.title}"
               </span>
@@ -34,7 +34,7 @@ export default function SearchResultCard({ searchHit }) {
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
-          className={`size-5 text-gray-600 transition-transform duration-300 shrink-0 ${isExpanded ? "rotate-180" : ""}`}
+          className={`size-5 text-gray-600 transition-transform duration-300 shrink-0 ${isExpanded ? 'rotate-180' : ''}`}
         >
           <path
             fillRule="evenodd"
@@ -46,13 +46,13 @@ export default function SearchResultCard({ searchHit }) {
 
       <div
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <div className="mb-3 mt-3 flex flex-row gap-4">
           <div>
             <p className="text-gray-700 text-sm">
-              <span className="font-bold">Published Date:</span>{" "}
+              <span className="font-bold">Published Date:</span>{' '}
               <span>{formatDate(searchHit.publish_date)}</span>
             </p>
           </div>
@@ -73,5 +73,5 @@ export default function SearchResultCard({ searchHit }) {
         </div>
       </div>
     </div>
-  );
+  )
 }

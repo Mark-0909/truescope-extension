@@ -21,7 +21,29 @@ export const verifyClaim = async (claim, config, callbacks = {}) => {
 
     const ws = new WebSocket(wsUrl)
     let hasReceivedData = false
+    let hasReceivedStats = false
     let timeoutId = null
+    let didFinish = false
+
+    const finishWithError = (error) => {
+      if (didFinish) return
+      didFinish = true
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+        timeoutId = null
+      }
+      reject(error)
+    }
+
+    const finishSuccess = () => {
+      if (didFinish) return
+      didFinish = true
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+        timeoutId = null
+      }
+      resolve()
+    }
 
     // Notify that WebSocket was created so caller can store reference
     callbacks.onWebSocketCreated?.(ws)
@@ -49,6 +71,7 @@ export const verifyClaim = async (claim, config, callbacks = {}) => {
           callbacks.onResult?.(data)
         } else if (data.type === 'stats') {
           console.log('Stats received:', data)
+          hasReceivedStats = true
           callbacks.onStats?.(data)
         } else if (data.type === 'remarks') {
           console.log('Remarks received:', data)
@@ -59,6 +82,7 @@ export const verifyClaim = async (claim, config, callbacks = {}) => {
         } else if (data.type === 'error') {
           console.log('Error during verification:', data)
           callbacks.onError?.(new Error(data.message))
+          finishWithError(new Error(data.message))
           ws.close()
         }
       } catch (error) {
@@ -68,39 +92,37 @@ export const verifyClaim = async (claim, config, callbacks = {}) => {
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error)
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-        timeoutId = null
-      }
       const errorMsg = error?.message || 'WebSocket connection failed'
-      callbacks.onError?.(new Error(errorMsg))
-      reject(error)
+      finishWithError(new Error(errorMsg))
     }
 
     ws.onclose = () => {
       console.log('WebSocket disconnected')
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-        timeoutId = null
+      if (ws.__clientClose) {
+        finishSuccess()
+        return
       }
-      resolve()
+      if (!didFinish && !hasReceivedStats) {
+        finishWithError(new Error('Connection closed before stats'))
+        return
+      }
+      finishSuccess()
     }
 
     // Timeout after 180 seconds (3 minutes)
     timeoutId = setTimeout(() => {
-      if (ws.readyState === WebSocket.OPEN) {
-        console.warn('WebSocket timeout - closing connection')
+      if (didFinish) return
+      console.warn('WebSocket timeout - closing connection')
+      if (
+        ws.readyState === WebSocket.OPEN ||
+        ws.readyState === WebSocket.CONNECTING
+      ) {
         ws.close()
-        timeoutId = null
-        if (!hasReceivedData) {
-          const timeoutError = new Error('Request timeout - no data received')
-          callbacks.onError?.(timeoutError)
-          reject(timeoutError)
-        } else {
-          // If we received data, just resolve
-          resolve()
-        }
       }
+      const timeoutError = hasReceivedData
+        ? new Error('Request timeout - analysis incomplete')
+        : new Error('Request timeout - no data received')
+      finishWithError(timeoutError)
     }, 180000)
   })
 }
