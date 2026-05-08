@@ -1,22 +1,15 @@
 {
   "manifest_version": 3,
   "name": "TrueScope",
-  "version": "1.0.0",
-  "description": "Analyze news articles for bias and credibility",
+  "version": "1.0.1",
+  "description": "Fact-check text claims on news and politics with transparent, multi-source evidence and bias signals.",
   "icons": {
     "128": "src/assets/logo.png"
   },
   "side_panel": {
     "default_path": "index.html"
   },
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "contextMenus",
-    "storage",
-    "sidePanel",
-    "tabs"
-  ],
+  "permissions": ["contextMenus", "storage", "sidePanel"],
   "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
     "service_worker": "src/background.js"

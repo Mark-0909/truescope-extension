@@ -122,7 +122,7 @@ export default function ConfigPopup({ onClose, colors }) {
           </div>
 
           {/* Toggle Section */}
-          <div className="bg-[#F8FAFC]/90 rounded-xl flex items-center justify-between border border-gray-50 p-2.5 hover:bg-[#F1F5F9] transition-colors duration-200">
+          <div className="bg-[#F8FAFC]/90 rounded-xl flex items-center justify-between border border-gray-50 px-2.5 hover:bg-[#F1F5F9] transition-colors duration-200">
             <div className="space-y-0.5">
               <p className="text-[14px] font-bold text-[#334155]">
                 Allow Non-Factcheck Articles

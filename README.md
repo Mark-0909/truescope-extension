@@ -17,16 +17,19 @@ This is the first step - testing your extension locally before publishing to the
 ### **Step 1: Start the Development Server**
 
 1. Open terminal and navigate to the project:
+
    ```bash
-   cd c:\Users\orcul\truescope-extension
+   cd c:\path-to-extension\truescope-extension
    ```
 
 2. Install dependencies (if not already done):
+
    ```bash
    npm install
    ```
 
 3. Start the development server with hot reload:
+
    ```bash
    npm run dev
    ```
@@ -54,7 +57,7 @@ This is the first step - testing your extension locally before publishing to the
 1. Click the **"Load unpacked"** button
 2. Navigate to your project's `dist` folder:
    ```
-   c:\Users\orcul\truescope-extension\dist
+   c:\path-to-extension\truescope-extension\dist
    ```
 3. Select the `dist` folder and click **"Select Folder"**
 4. Your TrueScope extension should now appear in the extensions list!
@@ -81,5 +84,6 @@ Since you're running `npm run dev`, changes automatically rebuild:
 ### **Step 6: Remove Extension**
 
 When you're done testing:
+
 1. Go to `chrome://extensions/`
 2. Click the **"Remove"** button on the TrueScope card
