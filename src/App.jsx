@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { FileEdit, CircleAlert } from 'lucide-react'
 import Popup from './components/Popup.jsx'
 import { calculateStats, verifyClaim } from './services/apiService.js'
+import { getNonArchivedEvidences } from './utils/scripts.js'
 
 function App() {
   const [overallVerdict, setOverallVerdict] = useState(null)
